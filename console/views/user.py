@@ -20,14 +20,14 @@ class UserView:
     def create_user(self, args):
         self.controller.sign_up(args.login, args.password)
         # args = ParseHelper.parse_args(args)
-        # user = User(**args)
-        # self.controller.create_user(user)
+        # users = User(**args)
+        # self.controller.create_user(users)
 
     def log_out(self, args):
         self.controller.log_out()
         # self.controller.log_out()
 
-    # Super user
+    # Super users
 
     def delete_user(self, args):
         pass

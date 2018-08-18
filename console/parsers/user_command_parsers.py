@@ -16,7 +16,7 @@ class UserCommandParsers:
         self.sign_up_parser()
 
     def log_in_parser(self):
-        parser_append = self.subparsers.add_parser('log_in', help='Log in user')
+        parser_append = self.subparsers.add_parser('log_in', help='Log in users')
         parser_append.add_argument('login', help='User login', default='')
         parser_append.add_argument('password', help='User password', default='')
         parser_append.set_defaults(func=self.view.log_in)
@@ -32,7 +32,7 @@ class UserCommandParsers:
         parser_append.set_defaults(func=self.view.log_out)
 
     def delete_user_parser(self):
-        parser_append = self.subparsers.add_parser('delete_user', help='Delete user (only for super user)')
+        parser_append = self.subparsers.add_parser('delete_user', help='Delete users (only for super users)')
         parser_append.add_argument('user_login', help='User login', default='')
         parser_append.set_defaults(func=self.view.delete_user)
 

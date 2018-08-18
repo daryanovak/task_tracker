@@ -18,7 +18,7 @@ class ArgsParser:
         self.user_command_parsers = UserCommandParsers(subparsers)
         self.comment_command_parsers = CommentCommandParsers(subparsers)
 
-        if os.stat("token").st_size != 0:
+        if os.stat("lib/token").st_size != 0:
             self.task_command_parsers.init_authorized_commands()
             self.user_command_parsers.init_authorized_commands()
             self.comment_command_parsers.init_authorized_commands()

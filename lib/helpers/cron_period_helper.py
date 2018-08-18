@@ -16,7 +16,7 @@ import todo_mvc.tracker_lib.lib.models.errors as errs
 class CronPeriodHelper:
     def get_tasks_periods(self, start_date, end_date, input_string='* * * * *'):
         """
-        Returns all dates of periodic task  from start date to end by cron parameter
+        Returns all dates of periodic tasks  from start date to end by cron parameter
         :param start_date: datetime
         :param end_date: datetime
         :param input_string: cron string "* * * * *"

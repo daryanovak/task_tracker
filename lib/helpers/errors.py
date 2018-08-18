@@ -9,7 +9,7 @@ class AccessError(Exception):
     def __init__(self):
         self.code = 1
         self.name = "AccessError"
-        self.desc = "You don't have access"
+        self.desc = "You don't have access to this task"
 
 
 class SuperuserError(Exception):
@@ -89,3 +89,11 @@ class CronValueError(Exception):
 #          │ │ │ │ │
 #          │ │ │ │ │
 #          * * * * *  command to execute"""
+
+
+class TagError(Exception):
+    def __init__(self):
+        self.code = 12
+        self.name = "TagError"
+        self.desc = "No tasks with such tag"
+

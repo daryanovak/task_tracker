@@ -16,14 +16,13 @@ class CommentCommandParsers:
 
     def create_comment_of_task(self):
         parser_append = self.subparsers.add_parser('comment_task', help='comment note')
-        parser_append.add_argument('title', help='', default='Title of note')
+        parser_append.add_argument('task_id', help='', default='Title of note')
         parser_append.add_argument('text', help='', default='Text of comment')
-        parser_append.add_argument('--date', help='date of task', default='')
         parser_append.set_defaults(func=self.view.create_comment_of_task)
 
-    def get_comments_of_task(self):
+    def get_comments_of_task(self):#непонятный обьект создается
         parser_append = self.subparsers.add_parser('comments_of_task', help='comment note')
-        parser_append.add_argument('title', help='', default='Title of note')
+        parser_append.add_argument('task_id', help='', default='Title of note')
         parser_append.set_defaults(func=self.view.get_comments_of_task)
 
 

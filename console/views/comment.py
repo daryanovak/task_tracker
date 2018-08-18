@@ -6,32 +6,30 @@ from todo_mvc.tracker_lib.lib.controllers.comment_controller import CommentContr
 from todo_mvc.tracker_lib.lib.controllers.user_controller import UserCont
 from todo_mvc.config import configroller
 from todo_mvc.tracker_lib.lib.models.сomment import Comment
-from todo_mvc.tracker_lib.lib.models.task import Task
+from todo_mvc.tracker_lib.lib.models.tasks import Task
 """
 
 import logging
 logger = logging.getLogger(__name__)
+from lib.controllers.comment import CommentController
+import lib.helpers.errors as errs
+import lib.helpers.error_helper as errs_help
 
 
 class CommentView:
     def __init__(self):
-        pass
-        #self.controller = CommentController(config['db_path'], UserController(config['db_path']).get_current_user())
+        self.controller = CommentController()
 
     def create_comment_of_task(self, args):
-      """
-         task: Task = self.controller.find_task_by_title(args.title)
-        self.controller.create_comment_of_task(task.id, args.text, args.date)
+        try:
+            self.controller.create_comment_of_task(args.task_id, args.text)
+        except errs.AccessError as e:
+            errs_help.console_print(e)
 
-      """
     def get_comments_of_task(self, args):
-      """
-       try:
-            task: Task = self.controller.find_task_by_title(args.title)
-            comments: typing.List[Comment] = self.controller.get_comments_of_task(task.id)
+        try:
+            comments = self.controller.get_comments_of_task(args.task_id)
             for comment in comments:
-                print(comment.owner + ': ' + comment.text)
-        except errs.TitleError as e:
-            err_help.console_print(e)
-            logger.error(e.name)
-      """
+                print(comment)
+        except errs.AccessError as e:
+            errs_help.console_print(e)
