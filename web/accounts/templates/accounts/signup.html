@@ -1,0 +1,18 @@
+{% extends "tasks/../../../tasks/templates/base.html" %}
+
+{% load bootstrap4 %}
+
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block content %}
+
+    <form class="login__form" method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input class="btn btn-success" type="submit" value="Sign up" />
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+{% endblock %}

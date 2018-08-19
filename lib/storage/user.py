@@ -19,6 +19,7 @@ def log_in(login, password):
         user.token = secrets.token_urlsafe()
         with open("lib/token", "w+") as file:
             file.writelines(user.token)
+        return user.token
     else:
         raise Exception()
 
