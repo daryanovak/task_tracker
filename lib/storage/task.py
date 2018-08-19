@@ -31,9 +31,12 @@ def get_task_by_id(task_id, user_id):
 
 
 @db_session
-def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=None, parent_id=None):
-    task = Task(creator=user_id, title=title, text=text, status=status, tags=tags, date=date, parent_id=parent_id)
+def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=None, parent_id=None, periodic_task_id=None):
+    task = Task(creator=user_id, title=title, text=text, status=status, tags=tags, date=date, parent_id=parent_id, periodic_task_id=periodic_task_id)
     task.users.add(User[user_id])
+    print(task.periodic_task_id)
+
+    return task
 
 
 @db_session
@@ -41,6 +44,8 @@ def add_periodic_task(user_id: int, title, text, status, tags, start_date, perio
      periodic_task = PeriodicTask(creator=user_id, title=title, text=text, status=status, tags=tags, start_date=start_date,
                                  period=period, date=date, parent_id=parent_id)
      periodic_task.users.add(User[user_id])
+
+     return periodic_task
 
 
 @db_session

@@ -96,9 +96,14 @@ class TaskView:
             logger.error(e.name)
 
     def get_tasks_on_period(self, args):
-        tasks = self.controller.get_tasks_on_period(args.start, args.end)
-        for task in tasks:
-            print(str(task.id) + "--id--" + " " + task.title + " " + task.text + " " + str(task.status))
+        dates_tasks = self.controller.get_tasks_on_period(args.start, args.end)
+        for date_tasks in dates_tasks:
+            date = list(date_tasks.keys())[0]
+            print(date)
+            for task in date_tasks[date]:
+                print(task)
+        # for task in tasks:
+        #     print(str(task.id) + "--id--" + " " + task.title + " " + task.text + " " + str(task.status))
         # try:
         #     response = self.controller.get_tasks_on_period(args.start, args.end)
         #     task_date = response.get('task_date_comments_dict')

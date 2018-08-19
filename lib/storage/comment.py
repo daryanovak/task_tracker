@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pony.orm import db_session
 import lib.storage.task as task_storage
 from lib.models import Task, PeriodicTask, User, Comment
@@ -13,12 +15,11 @@ def create_comment_of_task(user_id, task_id, text, date):  # проверки м
         if date:
             task = PeriodicTask[task_id]
             if date and cph.in_period(task.period, date):
-                task_storage.add_periodic_task(user_id, task.title, task.text, task.status, task.tags, task.start_date,
-                                               task.period, task.parent_id)
+                task = task_storage.add_task(user_id, task.title, task.text, task.status, task.tags, datetime.strptime(date, '%d/%m/%y'), task.parent_id, periodic_task_id=task_id)
         else:
             task = Task[task_id]
         user = User[user_id]
-        comment = Comment(text=text, user=user, date=date, task=task)
+        comment = Comment(text=text, user=user, task=task)
         task.comment.add(comment)
     else:
         raise errs.AccessError()
@@ -31,8 +32,7 @@ def get_comments_of_task(user_id, task_id):
         comments = list(comments)
         lst = []
         for comment in comments:
-            lst.append(comment.user.login)
-            lst.append(comment.text)
+            lst.append({'login': comment.user.login, 'text': comment.text})
         return lst
     else:
         raise errs.AccessError()

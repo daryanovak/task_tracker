@@ -22,7 +22,7 @@ class CommentView:
 
     def create_comment_of_task(self, args):
         try:
-            self.controller.create_comment_of_task(args.task_id, args.text)
+            self.controller.create_comment_of_task(args.task_id, args.text, args.date)
         except errs.AccessError as e:
             errs_help.console_print(e)
 

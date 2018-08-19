@@ -31,7 +31,7 @@ class User(db.Entity):
 
 class Task(db.Entity):
     def __str__(self):
-        return self.title and (self.id + ' '+ self.title + ' ' + self.text + ' ' + str(self.status) + ' '
+        return self.title and (str(self.id) + ' '+ self.title + ' ' + self.text + ' ' + str(self.status) + ' '
                                + self.tags + ' ' + StorageHelper.datetime_to_str(self.date))
     id = PrimaryKey(int, auto=True)
     creator = Required(int)
@@ -43,6 +43,7 @@ class Task(db.Entity):
     parent_id = Optional(int)
     comment = Set('Comment', cascade_delete=True)
     users = Set('User')
+    periodic_task_id = Optional(int)
 
 
 class PeriodicTask(Task):
@@ -54,7 +55,6 @@ class Comment(db.Entity):
     id = PrimaryKey(int, auto=True)
     text = Required(LongStr)
     user = Required(User)
-    date = Required(datetime)
     task = Required(Task)
 
 

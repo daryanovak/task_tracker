@@ -1,7 +1,7 @@
 import sqlite3
 import croniter
 from datetime import datetime, timedelta
-import todo_mvc.tracker_lib.lib.models.errors as errs
+
 """* * * * * Команда, которая будет выполнена
    - - - - -
    | | | | | 
@@ -34,15 +34,16 @@ class CronPeriodHelper:
 
         return periods
 
-    def in_period(self, period: str, date_timestamp: int):
+    def in_period(self, period: str, date):
         """
         Checks availability of date in the cron period
         :param period: string (cron)
         :param date_timestamp: int (timestamp)
         :return: date in timestamp format
         """
-        itr = croniter.croniter(period, date_timestamp)
-        return itr.get_next(datetime).timestamp() == date_timestamp
+        date = date if isinstance(date, datetime) else datetime.strptime(date, '%d/%m/%y')
+        itr = croniter.croniter(period, date.timestamp())
+        return itr.get_next(datetime).timestamp() == date.timestamp()
 
     """
      def get_tasks_period_by_date(date, input_string='* * * * 2'):
