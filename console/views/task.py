@@ -1,36 +1,43 @@
-import logging
-import lib.helpers.errors as errs
-import lib.helpers.error_helper as errs_help
+import todo_mvc.tracker_lib.helpers.errors as errs
+import todo_mvc.tracker_lib.helpers.error_helper as errs_help
 
-from lib.controllers.task import TaskController
+from todo_mvc.tracker_lib.controllers.task import TaskController
+from todo_mvc.tracker_lib.controllers.user import UserController
+from console.helpers import get_token
+import logging
 
 logger = logging.getLogger('logger')
 
 
 class TaskView:
     def __init__(self):
-        self.controller = TaskController()
-
-    def get_tasks(self, args):
-        pass
-        # tasks: typing.List[Task] = self.controller.get_tasks()
-        # self.__print_tasks(tasks)
+        self.user_controller = UserController()
+        self.controller = TaskController(self.user_controller.user_id(get_token()))
 
     def create_new_task(self, args):
-        self.controller.create_task(args.title, args.text, args.status, args.tags, args.parent_id, args.date)
+        try:
+            self.controller.create_task(args.title, args.text, args.status, args.tags, args.parent_id, args.date)
+        except (errs.TaskNotExistError, errs.TaskWithParentIdNotExistError) as e:
+            errs_help.console_print(e)
+            logger.error(e.name)
 
     def create_new_periodic_task(self, args):
-        self.controller.create_periodic_task(args.title, args.text, args.status, args.start_date,
+        try:
+            self.controller.create_periodic_task(args.title, args.text, args.status, args.start_date,
                                              args.date, args.period,  args.tags, args.parent_id)
+        except (errs.TaskWithParentIdNotExistError, errs.TaskNotExistError, errs.CronValueError) as e:
+            errs_help.console_print(e)
+            logger.error(e.name)
 
     def delete_task(self, args):
         try:
             self.controller.delete_task(args.task_id)
-        except (errs.AccessError, errs.TitleError) as e:
+        except (errs.AccessError, errs.TitleError, errs.TaskNotExistError, errs.UserNotHaveAccessToTask) as e:
             errs_help.console_print(e)
+            logger.error(e.name)
 
-    def show_my_tasks(self, args):#проблемы!!!!!!!!!!!!!
-        tasks = self.controller.show_my_tasks()
+    def get_tasks(self, args):
+        tasks = self.controller.get_tasks()
         for task in tasks:
             print(str(task.id) + "--id--" + " " + task.title +" " + task.text + " " + str(task.status))
 
@@ -57,14 +64,14 @@ class TaskView:
     def edit_task_text(self, args):
         try:
             self.controller.edit_task_text(args.task_id, args.new_text)
-        except (errs.TaskNotExistError,errs.AccessError) as e:
+        except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
             logger.error(e.name)
 
     def edit_task_status(self, args):
         try:
             self.controller.edit_task_status(args.task_id, args.new_status)
-        except errs.TitleError as e:
+        except (errs.TitleError, errs.TaskNotExistError,errs.StatusValueError) as e:
             errs_help.console_print(e)
             logger.error(e.name)
 
@@ -84,7 +91,7 @@ class TaskView:
             subtasks = self.controller.get_subtasks_of_task(args.task_id)
             for subtask in subtasks:
                 print(str(subtask.id) + "--id--" + " " + subtask.title +" " + subtask.text + " " + str(subtask.status))
-        except (errs.TaskNotExistError, errs.TitleError) as e:
+        except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
             logger.error(e.name)
 

@@ -1,6 +1,6 @@
 import logging
-
 from console.args_parser import ArgsParser
+
 
 def setup_logger(name, log_file, level=logging.INFO):
     """Function setup as many loggers as you want"""
