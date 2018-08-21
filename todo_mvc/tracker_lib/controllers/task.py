@@ -8,11 +8,42 @@ from todo_mvc.tracker_lib.enums import Status
 import todo_mvc.tracker_lib.helpers.errors as errs
 from todo_mvc.tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 
+import logging
 
-class TaskController():
+logger = logging.getLogger('logger')
+
+
+class TaskController:
     def __init__(self, user_id):
         self.cph = CronPeriodHelper
         self.user_id = user_id
+
+    def check_if__task_exist(self, task_id, user_id):
+        return_value = task_storage.check_task_exist(task_id=task_id, user_id=user_id)
+
+        if return_value == errs.TaskNotExistError().code:
+            raise errs.TaskWithParentIdNotExistError()
+
+        if return_value == errs.TaskNotExistError().code:
+            logger.error(errs.TaskNotExistError().name)
+            raise errs.TaskNotExistError()
+
+        else:
+            return True
+
+    def check_if_periodic_task_exist(self, task_id, user_id):
+        return_value = task_storage.check_periodic_task_exist(task_id=task_id, user_id=user_id)
+
+        if return_value == errs.TaskNotExistError().code:
+            logger.error(errs.TaskNotExistError().name)
+            raise errs.TaskWithParentIdNotExistError()
+
+        if return_value == errs.TaskNotExistError().code:
+            logger.error(errs.TaskNotExistError().name)
+            raise errs.TaskNotExistError()
+
+        else:
+            return True
 
     def create_task(self, title: str, text: str, status: int, tags="", parent_id=None, date=None):
         """
@@ -31,7 +62,7 @@ class TaskController():
             date_object = None
 
         if parent_id:
-            if task_storage.check_task_exist(task_id=parent_id, user_id=self.user_id):
+            if self.check_if_task_exist(task_id=parent_id, user_id=self.user_id):
                 return task_storage.add_task(user_id=self.user_id, title=title, text=text, status=status, tags=tags,
                                              parent_id=parent_id, date=date_object)
         else:
@@ -39,7 +70,7 @@ class TaskController():
             return task_storage.add_task(user_id=self.user_id, title=title, text=text, status=status, tags=tags,
                                          parent_id=parent_id, date=date_object)
 
-    def create_periodic_task(self, title: str, text: str, status: int, start_date: datetime, date: datetime,
+    def create_periodic_task(self, title: str, text: str, status: int, start_date: str, date: str,
                              period: str, tags=None, parent_id=None):
         """
         Creates a perios
@@ -67,7 +98,7 @@ class TaskController():
                 start_date_object = None
 
             if parent_id:
-                if task_storage.check_task_exist(task_id=parent_id, user_id=self.user_id):
+                if self.check_if__task_exist(task_id=parent_id, user_id=self.user_id):
                     return task_storage.add_periodic_task(user_id=self.user_id, title=title, text=text, status=status,
                                                           start_date=start_date_object, date=date_object, period=period,
                                                           tags=tags,
@@ -87,13 +118,20 @@ class TaskController():
         :param task_id: task id
         :return: task
         """
-        return task_storage.get_task_by_id(task_id=task_id, user_id=self.user_id)
+        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+            logger.info('Get task by id = %s was found!' % task_id)
+            return task_storage.get_task_by_id(task_id=task_id, user_id=self.user_id)
+
+        else:
+            logger.error(errs.AccessError().name)
+            raise errs.AccessError()
 
     def get_tasks(self):
         """
-         Shows all tasks
+        Shows all tasks
         :return: All task of authorized user_id
         """
+        logger.info('Gets all user tasks!')
         return task_storage.get_tasks(user_id=self.user_id)
 
     def delete_task(self, task_id: int):
@@ -101,7 +139,20 @@ class TaskController():
         Deletes task by id
         :param task_id: task id
         """
-        task_storage.delete_task(user_id=self.user_id, task_id=task_id)
+        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+            task = task_storage.get_task_by_id(task_id=task_id, user_id= self.user_id)
+
+            if task['creator'] == self.user_id:
+                task_storage.delete_task(task_id=task_id)
+                logger.info('Task, with id = %s was deleted!' % task_id)
+
+            else:
+                logger.error(errs.UserNotHaveAccessToTaskError().name)
+                raise errs.UserNotHaveAccessToTaskError()
+
+        else:
+            logger.error(errs.AccessError().name)
+            raise errs.AccessError()
 
     def edit_task_title(self, task_id: int, new_title: str):
         """
@@ -109,8 +160,18 @@ class TaskController():
         :param task_id:  tassk id : int
         :param new_title: title : str
         """
-        task_storage.edit_task(user_id=self.user_id, task_id=task_id, enum_parameter_value=Parameters.TITLE,
-                               modified_parameter=new_title)
+        if type(new_title) is str:
+            return_value = task_storage.edit_task(user_id=self.user_id, task_id=task_id,
+                                                  enum_parameter_value=Parameters.TITLE, modified_parameter=new_title)
+            if return_value == errs.TaskNotExistError().code:
+                logger.error(errs.InvalidTypeParameterError().name)
+                raise errs.TaskNotExistError()
+
+            logger.info('Edit task title with id = %s. New title = %s!' % (task_id, new_title))
+
+        else:
+            logger.error(errs.InvalidTypeParameterError().name)
+            raise errs.InvalidTypeParameterError()
 
     def edit_task_text(self, task_id: int, new_text: str):
         """
@@ -118,22 +179,48 @@ class TaskController():
         :param task_id: task id
         :param new_text: new text
         """
-        task_storage.edit_task(user_id=self.user_id, task_id=task_id, enum_parameter_value=Parameters.TEXT,
-                               modified_parameter=new_text)
+        if type(new_text) is str:
+            return_value = task_storage.edit_task(user_id=self.user_id, task_id=task_id, enum_parameter_value=Parameters.TEXT,
+                                   modified_parameter=new_text)
 
-    def edit_task_status(self, task_id: int, new_status: int):
+            if return_value == errs.TaskNotExistError().code:
+                logger.error(errs.InvalidTypeParameterError().name)
+                raise errs.TaskNotExistError()
+
+            logger.info('Edit task text with id = %s. New title = %s!' % (task_id, new_text))
+
+        else:
+            logger.error(errs.InvalidTypeParameterError().name)
+            raise errs.InvalidTypeParameterError()
+
+    def edit_task_status(self, task_id: int, new_status):
         """
         Changes task status
         :param task_id: task id
-        :param new_status: new status {0,1,2}
+        :param new_status: new status {0,1,2} int
         """
-        new_status = int(new_status)
-        values = [item.value for item in Status]
-        if new_status in values:
-            task_storage.edit_task(user_id=self.user_id, task_id=task_id,
-                                   enum_parameter_value=Parameters.STATUS, modified_parameter=new_status)
+        if new_status.isdigit():
+            new_status = int(new_status)
+            values = [item.value for item in Status]
+
+            if new_status in values:
+
+                if type(new_status) is int:
+                    task_storage.edit_task(user_id=self.user_id, task_id=task_id, enum_parameter_value=Parameters.STATUS,
+                                           modified_parameter=new_status)
+                    logger.info('Edit task status with id = %s. New title = %s!' % (task_id, new_status))
+
+                else:
+                    logger.error(errs.InvalidTypeParameterError().name)
+                    raise errs.InvalidTypeParameterError()
+
+            else:
+                logger.error(errs.StatusValueError().name)
+                raise errs.StatusValueError()
+
         else:
-            raise errs.StatusValueError()
+            logger.error(errs.InvalidTypeParameterError().name)
+            raise errs.InvalidTypeParameterError()
 
     def get_subtasks_of_task(self, task_id: int):
         """
@@ -141,7 +228,19 @@ class TaskController():
         :param task_id: task id
         :return: tasks
         """
-        return task_storage.get_subtask_of_task(user_id=self.user_id, task_id=task_id)
+        if task_storage.check_permission(task_id=task_id, user_id=self.user_id):
+            task_lst = task_storage.get_subtask_of_task(user_id=self.user_id, task_id=task_id)
+
+            if task_lst:
+                logger.info('Get subtasks of task with id = %s!' % task_id)
+                return task_lst
+
+            else:
+                logger.error(errs.NoSubtaskError().name)
+                raise errs.NoSubtaskError()
+        else:
+            logger.error(errs.AccessError().name)
+            raise errs.AccessError()
 
     def share_permission(self, new_user_id: int, task_id: int):
         """
@@ -149,7 +248,14 @@ class TaskController():
         :param new_user_id: user_id id :int
         :param task_id: task id : int
         """
-        task_storage.share_permission(user_id=self.user_id, task_id=task_id, new_user_id=new_user_id)
+        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+            task_storage.share_permission(user_id=self.user_id, task_id=task_id, new_user_id=new_user_id)
+
+            logger.info('Share permission to task with id = %s. New user = %s!' % (task_id, new_user_id))
+
+        else:
+            logger.error(errs.AccessError().name)
+            raise errs.AccessError()
 
     def get_task_by_tag(self, tag: str):
         """
@@ -157,7 +263,12 @@ class TaskController():
         :param tag: tag: str
         :return: tasks
         """
-        return task_storage.get_tasks_by_type_of_parameter(user_id=self.user_id, parameter=Parameters.TAGS, parametr_value=tag)
+        if type(tag) is str:
+            return task_storage.get_tasks_by_type_of_parameter(user_id=self.user_id, parameter=Parameters.TAGS, parametr_value=tag)
+
+        else:
+            logger.error(errs.InvalidTypeParameterError.name)
+            raise errs.InvalidTypeParameterError()
 
     def get_tasks_on_period(self, start: datetime, end: datetime):
         """
@@ -190,19 +301,28 @@ class TaskController():
         #         task_date_comments_dict[task] = {'dates': dates_dict}
 
         temp_date = start_date
+
         for i in range(int((end_date - start_date).days) + 1):
             tasks_list = list()
+
             for task in tasks:
+
                 if isinstance(task, PeriodicTask):
+
                     if cph.in_period(task.period, temp_date):
                         tasks_list.append(task)
+
                 else:
+
                     if temp_date == task.date:
+
                         if task.periodic_task_id:
                             tasks_list = list(filter(lambda task: task.id == task.periodic_task_id, tasks_list))
                         tasks_list.append(task)
+
             if len(tasks_list) > 0:
                 response.append({temp_date: tasks_list})
+
             temp_date = temp_date + timedelta(days=1)
 
         # temp_date = start_date

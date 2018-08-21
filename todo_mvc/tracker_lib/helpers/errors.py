@@ -112,10 +112,24 @@ class StatusValueError(Exception):
         self.desc = "Status value error, select {PLANNED = 0,COMPLETED = 1,FAILED = 2}"
 
 
-class UserNotHaveAccessToTask(Exception):
+class UserNotHaveAccessToTaskError(Exception):
     def __init__(self):
-        self.code = 14
+        self.code = 15
         self.name = "UserNotHaveAccessToTask"
         self.desc = "You not creator of this task, you can't delete"
+
+
+class InvalidTypeParameterError(Exception):
+    def __init__(self):
+        self.code = 14
+        self.name = "InvalidTypeParameter"
+        self.desc = "Invalid type of parametr"
+
+
+class NoSubtaskError(Exception):
+    def __init__(self):
+        self.code = 15
+        self.name = "NoSubtaskError"
+        self.desc = "Task don't have subtasks"
 
 

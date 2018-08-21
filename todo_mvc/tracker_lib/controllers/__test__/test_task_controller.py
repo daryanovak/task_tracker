@@ -6,11 +6,10 @@ from todo_mvc.tracker_lib.controllers.task import TaskController
 #отдельная база для тестов
 #unit test
 #либа
-#многоуровневое логирование
+#многоуровневое логирование????
 #help
 #документация
-#Если раздаем доступ к таске, должен раздаться доступ к подтаскам всем++++++===
-#логи???
+
 #bootstrap
 #django
 #html
@@ -20,7 +19,7 @@ from todo_mvc.tracker_lib.controllers.task import TaskController
 
 class TaskControllerTestCase(unittest.TestCase):
     def setUp(self):
-        #self.controller = TaskController()
+        self.controller = TaskController(user_id=1)
 
     def test_create_task(self):
         task = {'title': '__test__ title', 'text': '__test__ text', 'status': 1}
@@ -32,29 +31,26 @@ class TaskControllerTestCase(unittest.TestCase):
 
     def test_cron_periodic_task(self):
         with self.assertRaises(errs.TaskNotExistError):
-            TaskController.create_periodic_task(TaskController(), user_id=1, title="title", text="text", status=1,
-                                                start_date="01/02/12 00:00", date="02/02/12 00:00", period="* * * * *",
-                                                parent_id=666)
+            self.controller.create_periodic_task(title="title", text="text", status=1, start_date="01/02/12 00:00",
+                                                 date="02/02/12 00:00", period="* * * * *", parent_id=666)
 
     def test_cron_string_periodic_task(self):
         with self.assertRaises(errs.CronValueError):
-            TaskController.create_periodic_task(TaskController(), user_id=1,  title="title", text="text,", status=1,
-                                                start_date="01/02/12 00:00", date="02/02/12 00:00", period="* * help",
-                                                parent_id=666)
+            self.controller.create_periodic_task(title="title", text="text,", status=1, start_date="01/02/12 00:00",
+                                                 date="02/02/12 00:00", period="* * help", parent_id=666)
 
     def test_parent_id_periodic_task(self):
         with self.assertRaises(errs.TaskNotExistError):
-            TaskController.create_periodic_task(TaskController(),user_id=1,  title="title", text="text,", status=1,
-                                                start_date="01/02/12 00:00", date="02/02/12 00:00", period="* * * * *",
-                                                parent_id=666)
+            self.controller.create_periodic_task(title="title", text="text,", status=1, start_date="01/02/12 00:00",
+                                                 date="02/02/12 00:00", period="* * * * *", parent_id=666)
 
     def test_delete_task(self):
         with self.assertRaises(errs.TaskNotExistError):
-            TaskController.delete_task(TaskController(), user_id=1, task_id=89)
+            self.controller.delete_task(task_id=89)
 
     def test_delete_task(self):
         with self.assertRaises(errs.UserNotHaveAccessToTask):
-            TaskController.delete_task(user_id=1, task_id=2)
+            self.controller.delete_task(task_id=2)
 
 
 

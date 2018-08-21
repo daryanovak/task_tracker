@@ -11,7 +11,6 @@ class TaskCommandParsers:
         self.create_periodic_task_parser()
         self.get_tasks_parser()
         self.get_task_by_id_parser()
-        self.get_tasks_parser()
         self.delete_task_parser()
         self.get_tasks_by_tag_parser()
         self.get_subtasks_parser()

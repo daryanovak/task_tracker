@@ -19,7 +19,8 @@ class TaskView:
             self.controller.create_task(args.title, args.text, args.status, args.tags, args.parent_id, args.date)
         except (errs.TaskNotExistError, errs.TaskWithParentIdNotExistError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
+        except ValueError:
+            print("Not valid date")
 
     def create_new_periodic_task(self, args):
         try:
@@ -27,14 +28,16 @@ class TaskView:
                                              args.date, args.period,  args.tags, args.parent_id)
         except (errs.TaskWithParentIdNotExistError, errs.TaskNotExistError, errs.CronValueError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
+        except ValueError:
+            print("Not valid date")
+
 
     def delete_task(self, args):
         try:
             self.controller.delete_task(args.task_id)
-        except (errs.AccessError, errs.TitleError, errs.TaskNotExistError, errs.UserNotHaveAccessToTask) as e:
+        except (errs.AccessError, errs.TitleError, errs.TaskNotExistError, errs.UserNotHaveAccessToTaskError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
+
 
     def get_tasks(self, args):
         tasks = self.controller.get_tasks()
@@ -45,35 +48,26 @@ class TaskView:
         try:
             task = self.controller.get_task_by_id(args.task_id)
             print(task)  # напечатать красиво dict
-        except (errs.TaskNotExistError,errs.AccessError) as e:
+        except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
-
-    def get_task_by_title(self,args):
-        tasks = self.controller.get_tasks_by_title(args.title)
-        for task in tasks:
-            print(str(task.id) + str(task))
-            print("___________________")
 
     def edit_task_title(self, args):
         try:
             self.controller.edit_task_title(args.task_id, args.new_title)
-        except (errs.AccessError, errs.TaskNotExistError) as e:
+        except (errs.AccessError, errs.TaskNotExistError, errs.InvalidTypeParameterError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def edit_task_text(self, args):
         try:
             self.controller.edit_task_text(args.task_id, args.new_text)
-        except (errs.TaskNotExistError, errs.AccessError) as e:
+        except (errs.TaskNotExistError, errs.AccessError, errs.InvalidTypeParameterError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def edit_task_status(self, args):
         try:
             self.controller.edit_task_status(args.task_id, args.new_status)
-        except (errs.TitleError, errs.TaskNotExistError,errs.StatusValueError) as e:
+        except (errs.TitleError, errs.TaskNotExistError, errs.StatusValueError, errs.InvalidTypeParameterError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def get_tasks_by_tag(self, args):
         try:
@@ -84,23 +78,20 @@ class TaskView:
 
         except (errs.TaskNotExistError, errs.TitleError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def get_subtasks_of_task(self, args):
         try:
             subtasks = self.controller.get_subtasks_of_task(args.task_id)
             for subtask in subtasks:
                 print(str(subtask.id) + "--id--" + " " + subtask.title +" " + subtask.text + " " + str(subtask.status))
-        except (errs.TaskNotExistError, errs.AccessError) as e:
+        except (errs.TaskNotExistError, errs.AccessError, errs.NoSubtaskError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def share_task_permission(self, args):
         try:
             self.controller.share_permission(args.new_user_id, args.task_id)
         except (errs.TaskNotExistError, errs.TitleError, errs.AccessError) as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def get_tasks_on_period(self, args):
         dates_tasks = self.controller.get_tasks_on_period(args.start, args.end)

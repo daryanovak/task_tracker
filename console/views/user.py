@@ -23,7 +23,7 @@ class UserView:
     def create_user(self, args):
         self.controller.sign_up(args.login, args.password)
 
-    def log_out(self):
+    def log_out(self, args):
         self.controller.log_out(self.controller.user_id(get_token()))
         with open('./console/token', 'r+') as file:
             file.truncate()

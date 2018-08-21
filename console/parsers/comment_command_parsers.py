@@ -10,6 +10,7 @@ class CommentCommandParsers:
     def init_authorized_commands(self):
         self.create_comment_of_task()
         self.get_comments_of_task()
+        self.delete_comment_of_task()
 
     def init_unauthorized_commands(self):
         pass
@@ -25,5 +26,10 @@ class CommentCommandParsers:
         parser_append = self.subparsers.add_parser('comments_of_task', help='comment note')
         parser_append.add_argument('task_id', help='', default='Title of note')
         parser_append.set_defaults(func=self.view.get_comments_of_task)
+
+    def delete_comment_of_task(self):
+        parser_append = self.subparsers.add_parser('delete_comment', help='comment note')
+        parser_append.add_argument('task_id', help='', default='Title of note')
+        parser_append.set_defaults(func=self.view.delete_comment)
 
 
