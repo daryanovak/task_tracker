@@ -5,6 +5,7 @@ from todo_mvc.tracker_lib.models import Task, PeriodicTask, Comment
 import todo_mvc.tracker_lib.helpers.errors as errs
 from todo_mvc.tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 import logging
+from pony.orm import *
 
 logger = logging.getLogger('logger')
 
@@ -27,7 +28,7 @@ def create_comment_for_periodic_task(user_id, task_id, text, date):
 @db_session
 def create_comment_for_task(user_id, task_id, text):  # проверки можно ли писать данному пользователю комментарий
     task = Task[task_id]
-    comment = Comment(text=text, user=user_id, task=task)
+    comment = Comment(text=text, user_id=user_id, task=task)
     task.comment.add(comment)
 
 
@@ -38,21 +39,28 @@ def get_comments_of_task(task_id):
         comments = list(comments)
         lst = []
         for comment in comments:
-            lst.append({'login': comment.user_id.login, 'text': comment.text})
+            lst.append({'login': comment.user_id, 'text': comment.text})
         return lst
 
 
 @db_session
 def check_is_it_user_comment(user_id, comment_id):
-    if user_id is Comment[comment_id].user_id:
-        return True
-    else:
-        raise errs.AccessError()
+    try:
+        if user_id is Comment[comment_id].user_id:
+            return True
+        else:
+            return errs.CommentAccessError().code
+    except ObjectNotFound:
+        return errs.CommentNotFoundError().code
 
 
 @db_session
 def delete_comment(user_id, comment_id):
-    Comment[comment_id].delete()
+    try:
+        Comment[comment_id].delete()
+        return True
+    except ObjectNotFound:
+        return errs.CommentAccessError().code
 
 
 

@@ -1,5 +1,5 @@
 import todo_mvc.tracker_lib.storage.task as task_storage
-from todo_mvc.tracker_lib.models import Task, PeriodicTask
+from todo_mvc.tracker_lib.models import PeriodicTask
 import croniter
 from datetime import datetime, timedelta
 from todo_mvc.tracker_lib.enums import Parameters
@@ -8,7 +8,7 @@ import todo_mvc.tracker_lib.helpers.errors as errs
 from todo_mvc.tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 
 import logging
-
+from pony.orm import *
 logger = logging.getLogger('logger')
 
 
@@ -16,6 +16,13 @@ class TaskController:
     def __init__(self, user_id):
         self.cph = CronPeriodHelper
         self.user_id = user_id
+
+    def check_permission(self, user_id, task_id):
+        try:
+            return task_storage.check_permission(user_id=user_id, task_id=task_id)
+        except ObjectNotFound:
+            logger.error(errs.TaskNotExistError().name)
+            raise errs.TaskNotExistError()
 
     def check_if_task_exist(self, task_id, user_id):
         return_value = task_storage.check_task_exist(task_id=task_id, user_id=user_id)
@@ -113,7 +120,7 @@ class TaskController:
         :param task_id: task id
         :return: task
         """
-        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+        if self.check_permission(user_id=self.user_id, task_id=task_id):
             logger.info('Get task by id = %s was found!' % task_id)
             return task_storage.get_task_by_id(task_id=task_id)
 
@@ -134,7 +141,7 @@ class TaskController:
         Deletes task by id
         :param task_id: task id
         """
-        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+        if self.check_permission(user_id=self.user_id, task_id=task_id):
             task = task_storage.get_task_by_id(task_id=task_id)
 
             if task['creator'] == self.user_id:
@@ -150,7 +157,7 @@ class TaskController:
             raise errs.AccessError()
 
     def edit_task(self, task_id: int, edit_parametr: Parameters, new_parametr_value):
-        if task_storage.check_permission(task_id=task_id, user_id=self.user_id):
+        if self.check_permission(task_id=task_id, user_id=self.user_id):
             return_value = task_storage.edit_task(task_id=task_id, enum_parameter_value=edit_parametr,
                                                   modified_parameter=new_parametr_value)
 
@@ -214,7 +221,7 @@ class TaskController:
         :param task_id: task id
         :return: tasks
         """
-        if task_storage.check_permission(task_id=task_id, user_id=self.user_id):
+        if self.check_permission(task_id=task_id, user_id=self.user_id):
             task_lst = task_storage.get_subtask_of_task(user_id=self.user_id, task_id=task_id)
 
             if task_lst:
@@ -234,7 +241,7 @@ class TaskController:
         :param new_user_id: user_id id :int
         :param task_id: task id : int
         """
-        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
+        if self.check_permission(user_id=self.user_id, task_id=task_id):
             task_storage.share_permission(user_id=self.user_id, task_id=task_id, new_user_id=new_user_id)
 
             logger.info('Share permission to task with id = %s. New user = %s!' % (task_id, new_user_id))
@@ -263,28 +270,12 @@ class TaskController:
         :param end: end of period : datetime in '%d/%m/%y'
         :return: tasks
         """
-        # start = datetime.strptime(start, '%d/%m/%y %H:%M')
-        # end = datetime.strptime(end, '%d/%m/%y %H:%M')
-        # current_user_id = user_storage.get_current_user()
         cph = CronPeriodHelper()
         start_date = datetime.strptime(start, '%d/%m/%y')
         end_date = datetime.strptime(end, '%d/%m/%y')
         tasks = task_storage.get_tasks(self.user_id)
         task_date_comments_dict = dict()
         response = []
-
-        # if type(start) != datetime or type(end) != datetime:
-        # response = {}
-        #     raise errs.IncorrectDateValueError()
-
-        # for task in tasks:
-        #     if isinstance(task, PeriodicTask):
-        #         dates = cph.get_tasks_periods(start_date, end_date,
-        #                                       task.period)
-        #         dates_dict = dict()
-        #         for date in dates:
-        #             dates_dict[date] = comment_storage.get_comments_of_task(current_user_id, task.id)
-        #         task_date_comments_dict[task] = {'dates': dates_dict}
 
         temp_date = start_date
 
@@ -310,32 +301,6 @@ class TaskController:
                 response.append({temp_date: tasks_list})
 
             temp_date = temp_date + timedelta(days=1)
-
-        # temp_date = start_date
-        #
-        #
-        # is_printable = False
-        # for i in range(int((end_date - start_date).days) + 1):
-        #     tasks_to_print = dict()
-        #
-        #     for task in task_date_comments_dict:
-        #         if temp_date.date().__str__() in task_date_comments_dict[task]['dates']:
-        #             is_printable = True
-        #             tasks_to_print[task] = task_date_comments_dict[task]
-        #
-        #     if is_printable:
-        #         response[temp_date] = tasks_to_print
-        #         # print(temp_date.date().__str__() + ':')
-        #         # print('tasks:')
-        #         # for task in tasks_to_print:
-        #         #     print(task)
-        #         #     for comment in tasks_to_print[task]['dates'][temp_date.date().__str__()]:
-        #         #         print('comments:')
-        #         #         print('-' + comment.__str__())
-        #
-        #     is_printable = False
-        #
-        #     temp_date = temp_date + timedelta(days=1)
 
         return response
 

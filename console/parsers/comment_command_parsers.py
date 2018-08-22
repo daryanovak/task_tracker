@@ -29,7 +29,7 @@ class CommentCommandParsers:
 
     def delete_comment_of_task(self):
         parser_append = self.subparsers.add_parser('delete_comment', help='comment note')
-        parser_append.add_argument('task_id', help='', default='Title of note')
+        parser_append.add_argument('comment_id', help='', default='Title of note')
         parser_append.set_defaults(func=self.view.delete_comment)
 
 

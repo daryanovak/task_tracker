@@ -133,3 +133,17 @@ class NoSubtaskError(Exception):
         self.desc = "Task don't have subtasks"
 
 
+class CommentAccessError(Exception):
+    def __init__(self):
+        self.code = 16
+        self.name = "CommentAccessError"
+        self.desc = "You don't have access to this comment"
+
+
+class CommentNotFoundError(Exception):
+    def __init__(self):
+        self.code = 17
+        self.name = "CommentNotFoundError"
+        self.desc = "Comment not found"
+
+

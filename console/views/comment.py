@@ -30,7 +30,7 @@ class CommentView:
 
     def delete_comment(self, args):
         try:
-            self.controller.delete_comment(args.user_id, args.comment_id)
-        except errs.TaskNotExistError as e:
+            self.controller.delete_comment(args.comment_id)
+        except (errs.CommentNotFoundError, errs.CommentAccessError) as e:
             errs_help.console_print(e)
 

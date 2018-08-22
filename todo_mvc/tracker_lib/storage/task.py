@@ -24,12 +24,8 @@ def check_permission(user_id: int, task_id: int):
     :param task_id:
     :return: bool
     """
-    try:
-        task = Task[task_id]
-        return user_id in task.users
-    except ObjectNotFound:
-        logger.error(errs.TaskNotExistError().name)
-        raise errs.TaskNotExistError()
+    task = Task[task_id]
+    return user_id in task.users
 
 
 @db_session
@@ -146,47 +142,6 @@ def delete_task(task_id: int):
     task = Task[task_id]
     delete(p for p in Task if p.parent_id == task_id)
     task.delete()
-
-@db_session
-def get_task_by_id1(task_id, user_id):
-    # task = Task[task_id]
-    # lst_task = []
-    # if isinstance(task, Task):
-    #     for u in task.users:
-    #         if u == user_id:
-    #             #lst_task.append(task)
-    #             return task
-    #         else:
-    #             return errs.TaskNotExistError().code
-    #
-    # if isinstance(task, PeriodicTask):
-    #     for u in task.users:
-    #         if u == user_id:
-    #             # lst_task.append(task)
-    #             return task
-    #         else:
-    #             return errs.TaskNotExistError().code
-    tasks = (select(task for task in Task).prefetch(Task))
-
-    tasks_lst = []
-
-    for task in tasks:
-        if isinstance(task, Task):
-            for u in task.users:
-                if u == user_id:
-                    tasks_lst.append(task)
-                else:
-                    return errs.TaskNotExistError().code
-
-        if isinstance(task, PeriodicTask):
-            for u in task.users:
-                if u == user_id:
-                    tasks_lst.append(task)
-                else:
-                    return errs.TaskNotExistError().code
-
-    return tasks_lst
-
 
 
 @db_session
@@ -343,4 +298,28 @@ def get_tasks_by_type_of_parameter(user_id: int, parameter: Parameters, parametr
 #     return tasks_lst
 
 
+
+#
+# @db_session
+# def get_task_by_id1(task_id, user_id):
+#     tasks = (select(task for task in Task).prefetch(Task))
+#
+#     tasks_lst = []
+#
+#     for task in tasks:
+#         if isinstance(task, Task):
+#             for u in task.users:
+#                 if u == user_id:
+#                     tasks_lst.append(task)
+#                 else:
+#                     return errs.TaskNotExistError().code
+#
+#         if isinstance(task, PeriodicTask):
+#             for u in task.users:
+#                 if u == user_id:
+#                     tasks_lst.append(task)
+#                 else:
+#                     return errs.TaskNotExistError().code
+#
+#     return tasks_lst
 

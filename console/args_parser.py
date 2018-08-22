@@ -6,6 +6,7 @@ from console.parsers.task_command_parsers import TaskCommandParsers
 from console.parsers.user_command_parsers import UserCommandParsers
 from console.auth.user_controller import UserController
 
+
 class ArgsParser:
     def __init__(self):
         parser = argparse.ArgumentParser(description='User storage utility')
