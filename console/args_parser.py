@@ -4,8 +4,7 @@ from console.helpers import get_token
 from console.parsers.comment_command_parsers import CommentCommandParsers
 from console.parsers.task_command_parsers import TaskCommandParsers
 from console.parsers.user_command_parsers import UserCommandParsers
-from todo_mvc.tracker_lib.controllers.user import UserController
-
+from console.auth.user_controller import UserController
 
 class ArgsParser:
     def __init__(self):

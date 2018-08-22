@@ -1,5 +1,8 @@
 from enum import Enum
 from datetime import datetime
+
+from pony.orm.serialization import to_dict
+
 from todo_mvc.tracker_lib.helpers.storage_helper import StorageHelper
 from pony.orm import *
 from.database import db
@@ -20,15 +23,6 @@ class Status(Enum):
     FAILED = 2
 
 
-class User(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    login = Required(str, unique=True)
-    password = Required(int)
-    token = Optional(LongStr)
-    tasks = Set('Task')
-    comment = Set('Comment', cascade_delete=True)
-
-
 class Task(db.Entity):
     def __str__(self):
         return self.title and (str(self.id) + ' '+ self.title + ' ' + self.text + ' ' + str(self.status) + ' '
@@ -42,8 +36,8 @@ class Task(db.Entity):
     date = Optional(datetime)
     parent_id = Optional(int)
     comment = Set('Comment', cascade_delete=True)
-    users = Set('User')
     periodic_task_id = Optional(int)
+    users = Required(Json)
 
 
 class PeriodicTask(Task):
@@ -54,7 +48,7 @@ class PeriodicTask(Task):
 class Comment(db.Entity):
     id = PrimaryKey(int, auto=True)
     text = Required(LongStr)
-    user = Required(User)
+    user_id = Required(int)
     task = Required(Task)
 
 

@@ -1,8 +1,9 @@
 import todo_mvc.tracker_lib.helpers.errors as errs
 import todo_mvc.tracker_lib.helpers.error_helper as errs_help
+import console.task_help as task_help
+from console.auth.user_controller import UserController
 
 from todo_mvc.tracker_lib.controllers.task import TaskController
-from todo_mvc.tracker_lib.controllers.user import UserController
 from console.helpers import get_token
 import logging
 
@@ -28,9 +29,8 @@ class TaskView:
                                              args.date, args.period,  args.tags, args.parent_id)
         except (errs.TaskWithParentIdNotExistError, errs.TaskNotExistError, errs.CronValueError) as e:
             errs_help.console_print(e)
-        except ValueError:
-            print("Not valid date")
-
+        # except ValueError:
+        #     print("Not valid date")
 
     def delete_task(self, args):
         try:
@@ -38,16 +38,16 @@ class TaskView:
         except (errs.AccessError, errs.TitleError, errs.TaskNotExistError, errs.UserNotHaveAccessToTaskError) as e:
             errs_help.console_print(e)
 
-
     def get_tasks(self, args):
         tasks = self.controller.get_tasks()
         for task in tasks:
-            print(str(task.id) + "--id--" + " " + task.title +" " + task.text + " " + str(task.status))
+            #task_help.print_task(task)
+            print(task)
 
     def get_task_by_id(self, args):
         try:
             task = self.controller.get_task_by_id(args.task_id)
-            print(task)  # напечатать красиво dict
+            print(task)
         except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
 

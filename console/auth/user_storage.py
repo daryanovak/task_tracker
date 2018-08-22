@@ -1,5 +1,5 @@
 from pony.orm import db_session
-from todo_mvc.tracker_lib.models import User
+from console.auth.user_model import User
 import secrets
 import logging
 

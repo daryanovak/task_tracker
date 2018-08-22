@@ -7,10 +7,10 @@ database_config = config['database.config']
 db = orm.Database()
 # db.bind(
 #     'postgres',
-#     user_id=database_config['user_id'],
-#     password=database_config['password'],
-#     host=database_config['host'],
-#     database=database_config['database']
+#     user='postgres',
+#     password='postgres',
+#     host='localhost',
+#     database='mydb2'
 # )
 db.bind(provider='sqlite', filename='database.sqlite1', create_db=True)
 

@@ -1,8 +1,11 @@
+import json
+
 from pony.orm import *
 import datetime
-import pickle
 import _pickle as cPickle
-from todo_mvc.tracker_lib.models import User
+
+from pony.orm.serialization import to_dict, to_json
+
 from todo_mvc.tracker_lib.models import Task
 from todo_mvc.tracker_lib.models import PeriodicTask
 from todo_mvc.tracker_lib.enums import Parameters
@@ -13,7 +16,7 @@ import logging
 logger = logging.getLogger('logger')
 
 
-@db_session#!!!!!!!!!!!!!!!!!!!!!!!!!!
+@db_session
 def check_permission(user_id: int, task_id: int):
     """
     Check if task with[task_id] belongs to user with [user_id]
@@ -22,9 +25,8 @@ def check_permission(user_id: int, task_id: int):
     :return: bool
     """
     try:
-        user = User[user_id]
         task = Task[task_id]
-        return user in task.users
+        return user_id in task.users
     except ObjectNotFound:
         logger.error(errs.TaskNotExistError().name)
         raise errs.TaskNotExistError()
@@ -40,7 +42,7 @@ def check_task_exist(task_id: int, user_id: int):
     """
     task = Task.get(id=task_id)
     if task:
-        if User[user_id] in task.users:
+        if user_id in task.users:
             return True
         else:
             return errs.TaskNotExistError().code
@@ -57,8 +59,9 @@ def check_periodic_task_exist(task_id: int, user_id: int):
     :return:
     """
     task = PeriodicTask.get(id=task_id)
+
     if task:
-        if User[user_id] in task.users:
+        if user_id in task.users:
             return True
         else:
             return errs.TaskWithParentIdNotExistError().code
@@ -67,7 +70,7 @@ def check_periodic_task_exist(task_id: int, user_id: int):
 
 
 @db_session
-def get_task_by_id(task_id: int, user_id: int):
+def get_task_by_id(task_id: int):
     """
     Gets task from database with such [task_id] and converts it to dict
     :param task_id:
@@ -93,12 +96,14 @@ def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=N
     :param periodic_task_id:
     :return: task
     """
-    task = Task(creator=user_id, title=title, text=text, status=status, tags=tags,
-                date=date, parent_id=parent_id, periodic_task_id=periodic_task_id)
-    task.users.add(User[user_id])
 
-    # task = [{'title': task.title, 'text': task.text, 'status': task.status, 'tags': task.tags, 'date': task.date,
-    #              'parent_id': task.parent_id, 'periodic_task_id': periodic_task_id, 'creator':task.creator}]
+    users = [user_id]
+    if parent_id:
+        parent_task = get_task_by_id(parent_id)
+        users = parent_task['users']
+
+    task = Task(creator=user_id, title=title, text=text, status=status, tags=tags,
+                date=date, parent_id=parent_id, periodic_task_id=periodic_task_id, users=users)
 
     logger.info('Task, with id = %s was created!' % task.id)
 
@@ -108,13 +113,13 @@ def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=N
 @db_session
 def add_periodic_task(user_id: int, title: str, text:str, status: int, tags: str, start_date: datetime, period: str,
                       date=None, parent_id=None):
-    periodic_task = PeriodicTask(creator=user_id, title=title, text=text, status=status, tags=tags, start_date=start_date,
-                                 period=period, date=date, parent_id=parent_id)
-    periodic_task.users.add(User[user_id])
+    users = [user_id]
+    if parent_id:
+        parent_task = get_task_by_id(parent_id)
+        users = parent_task['users']
 
-    # periodic_task= [{'title': periodic_task.title, 'text': periodic_task.text, 'status': periodic_task.status,
-    #                       'tags': periodic_task.tags, 'start_date': periodic_task.start_date,
-    #                       'period': periodic_task.period, 'date': periodic_task.date, 'parent_id': periodic_task.parent_id, 'creator': periodic_task.creator}]
+    periodic_task = PeriodicTask(creator=user_id, title=title, text=text, status=status, tags=tags, start_date=start_date,
+                                 period=period, date=date, parent_id=parent_id, users=users)
 
     logger.info('Periodic Task, with id = %s was created!' % periodic_task.id)
 
@@ -124,12 +129,13 @@ def add_periodic_task(user_id: int, title: str, text:str, status: int, tags: str
 @db_session
 def get_tasks(user_id: int):
     tasks = select(t for t in Task
-                  for user in t.users if user.id == user_id).prefetch(Task.title)
+                   if user_id in t.users).prefetch(Task.title)
     pickled_data = cPickle.dumps(tasks)
     tasks = cPickle.loads(pickled_data)
-    lst = []
 
+    lst = []
     for task in tasks:
+        t = task.users
         lst.append(task)
 
     return lst
@@ -141,31 +147,72 @@ def delete_task(task_id: int):
     delete(p for p in Task if p.parent_id == task_id)
     task.delete()
 
+@db_session
+def get_task_by_id1(task_id, user_id):
+    # task = Task[task_id]
+    # lst_task = []
+    # if isinstance(task, Task):
+    #     for u in task.users:
+    #         if u == user_id:
+    #             #lst_task.append(task)
+    #             return task
+    #         else:
+    #             return errs.TaskNotExistError().code
+    #
+    # if isinstance(task, PeriodicTask):
+    #     for u in task.users:
+    #         if u == user_id:
+    #             # lst_task.append(task)
+    #             return task
+    #         else:
+    #             return errs.TaskNotExistError().code
+    tasks = (select(task for task in Task).prefetch(Task))
+
+    tasks_lst = []
+
+    for task in tasks:
+        if isinstance(task, Task):
+            for u in task.users:
+                if u == user_id:
+                    tasks_lst.append(task)
+                else:
+                    return errs.TaskNotExistError().code
+
+        if isinstance(task, PeriodicTask):
+            for u in task.users:
+                if u == user_id:
+                    tasks_lst.append(task)
+                else:
+                    return errs.TaskNotExistError().code
+
+    return tasks_lst
+
 
 
 @db_session
-def edit_task(user_id: int, task_id: int, enum_parameter_value: Parameters, modified_parameter):
-    task = select(t for t in Task
-                  for user in t.users if user.id == user_id
-                  if t.id == task_id).first()
-    pickled_data = cPickle.dumps(task)
-    task = cPickle.loads(pickled_data)
-
+def edit_task(task_id: int, enum_parameter_value: Parameters, modified_parameter):
+    task = Task[task_id]
     if task:
         if enum_parameter_value == Parameters.TITLE:
             task.title = modified_parameter
+            return True
 
         if enum_parameter_value == Parameters.TEXT:
             task.text = modified_parameter
+            return True
 
         if enum_parameter_value == Parameters.STATUS:
             task.status = modified_parameter
+            return True
 
         if enum_parameter_value == Parameters.TAGS:
             task.tags = modified_parameter
+            return True
 
         if enum_parameter_value == Parameters.PARENT_ID:
             task.parent_id = modified_parameter
+            return True
+
     else:
         return errs.TaskNotExistError().code
 
@@ -173,7 +220,7 @@ def edit_task(user_id: int, task_id: int, enum_parameter_value: Parameters, modi
 @db_session
 def get_subtask_of_task(user_id: int, task_id: int):
     tasks = select(t for t in Task
-                  for user in t.users if user.id == user_id
+                  if user_id in t.users
                   if t.parent_id == task_id).prefetch(Task.title)
     pickled_data = cPickle.dumps(tasks)
     tasks = cPickle.loads(pickled_data)
@@ -185,24 +232,37 @@ def get_subtask_of_task(user_id: int, task_id: int):
     return lst
 
 
-
-
 @db_session
-def share_permission(user_id: int, task_id: int, new_user_id: int):
-    task = Task[task_id]
-    new_user = User[new_user_id]
-    new_user.tasks.add(task)
-    tasks = select(t for t in Task
-                   for user in t.users if user.id == user_id
-                   if t.parent_id == task_id).prefetch(Task.title).prefetch(Task)
-    for task in tasks:
-        task.users.add(new_user)
+def share_permission(user_id: int, task_id: int, new_user_id: int, parent_id: int=None):
 
-    periodic_tasks = select(t for t in Task
-                   for user in t.users if user.id == user_id
-                   if t.parent_id == task_id).prefetch(Task.title).prefetch(Task)
-    for periodic_task in periodic_tasks:
-        periodic_task.users.add(new_user)
+    if parent_id:
+        tasks = select(t for t in Task
+                       if user_id in t.users
+                       if t.parent_id == parent_id).prefetch(Task)
+        for task in tasks:
+            task.users.append(int(new_user_id))
+            share_permission(user_id, task_id, new_user_id, task.id)
+
+    else:
+        task = Task[task_id]
+    # task.users.append(int(new_user_id))
+    # # bool = user_id in task.users
+        task.users.append(int(new_user_id))
+
+        tasks = select(t for t in Task
+                       if user_id in t.users
+                       if t.parent_id == task_id).prefetch(Task)
+
+        if len(tasks):
+            for _task in tasks:
+                share_permission(user_id, _task.id, new_user_id, task.id)
+
+    # periodic_tasks = select(t for t in PeriodicTask
+    #                         if user_id in t.users
+    #                         if t.parent_id == task_id).prefetch(Task)
+    #
+    # for periodic_task in periodic_tasks:
+    #     periodic_task.users.append(new_user_id)
 
 
 
@@ -229,31 +289,21 @@ def get_tasks_on_period(user_id: int, start: datetime, end: datetime):
 @db_session
 def get_tasks_by_type_of_parameter(user_id: int, parameter: Parameters, parametr_value):
     if parameter == Parameters.TITLE:
-        if type(parametr_value) is str:
             tasks = select(t for t in Task
-                           for user in t.users if user.id == user_id
+                           if user_id in t.users
                            if t.title == parametr_value)
             pickled_data = cPickle.dumps(tasks)
             tasks = cPickle.loads(pickled_data)
-            test = tasks.tag
-        else:
-            raise Exception()
 
     if parameter == Parameters.TEXT:
-        if type(parametr_value) is str:
             return Task.get(text=parametr_value)
-        else:
-            raise Exception()
 
-    if parameter.value == 3:
-        if type(parametr_value) is Status.value:
+    if parameter == Parameters.STATUS:
             return Task.get(status=parametr_value)
-        else:
-            raise Exception()
 
     if parameter == Parameters.TAGS:
             tasks = select(t for t in Task
-                           for user in t.users if user.id == user_id).prefetch(Task.title)
+                           if user_id in t.users).prefetch(Task.title)
 
             pickled_data = cPickle.dumps(tasks)
             tasks = cPickle.loads(pickled_data)
@@ -267,11 +317,30 @@ def get_tasks_by_type_of_parameter(user_id: int, parameter: Parameters, parametr
                         lst.append(task)
             return lst
 
-    if parameter.value == 5:
-        if type(parametr_value) is int:
-            return Task.get(parent_id=parametr_value)
-        else:
-            raise Exception()
+
+# @db_session
+# def get_tasks1(user_id: int):
+#     tasks = (select(task for task in Task).prefetch(Task))
+#
+#     tasks_lst = []
+#
+#     for task in tasks:
+#         if isinstance(task, Task):
+#             for u in task.users:
+#                 if u == user_id:
+#                     tasks_lst.append({'id': task.id, 'type': "Task", 'title': task.title, 'text': task.text,
+#                                  'status': task.status, 'tags': task.tags, 'date': task.date,
+#                                  'parent_id': task.parent_id, 'creator': task.creator})
+#
+#         if isinstance(task, PeriodicTask):
+#             for u in task.users:
+#                 if u == user_id:
+#                     tasks_lst.append({'id': task.id, 'type': "PeriodicTask", 'title': task.title, 'text': task.text,
+#                                 'status': task.status, 'tags': task.tags, 'start_date': task.start_date,
+#                                 'period': task.period, 'date': task.date, 'parent_id': task.parent_id,
+#                                 'creator': task.creator})
+#
+#     return tasks_lst
 
 
 

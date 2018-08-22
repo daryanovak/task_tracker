@@ -1,5 +1,5 @@
 from console.helpers import get_token
-from todo_mvc.tracker_lib.controllers.user import UserController
+from console.auth.user_controller import UserController
 import logging
 import todo_mvc.tracker_lib.helpers.errors as errs
 import todo_mvc.tracker_lib.helpers.error_helper as errs_help

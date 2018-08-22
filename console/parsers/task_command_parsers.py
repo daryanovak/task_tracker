@@ -51,44 +51,44 @@ class TaskCommandParsers:
 
         parser_append.set_defaults(func=self.view.create_new_periodic_task)
 
-    def delete_task_parser(self):
+    def delete_task_parser(self):#+++
         parser_append = self.subparsers.add_parser('delete_task', help='Delete task')
         parser_append.add_argument('task_id', help='id', default='')
         parser_append.set_defaults(func=self.view.delete_task)
 
-    def get_tasks_parser(self):
+    def get_tasks_parser(self):#+++
         parser_append = self.subparsers.add_parser('get_tasks', help='Show tasks')
         parser_append.set_defaults(func=self.view.get_tasks)
 
-    def get_task_by_id_parser(self):
-        parser_append = self.subparsers.add_parser('task_by_id', help='Get tasks.py by title')
+    def get_task_by_id_parser(self):#нормальный вывод+++
+        parser_append = self.subparsers.add_parser('task_by_id', help='Get tasks.py by id')
         parser_append.add_argument('task_id', help='task id', default='')
         parser_append.set_defaults(func=self.view.get_task_by_id)
 
-    def edit_task_title_parser(self):
+    def edit_task_title_parser(self):#++++++
         parser_append = self.subparsers.add_parser('edit_task_title', help='Edit title')
         parser_append.add_argument('task_id', help='task id', default=None)
         parser_append.add_argument('new_title', help='new title', default='Title')
         parser_append.set_defaults(func=self.view.edit_task_title)
 
-    def edit_task_text_parser(self):
+    def edit_task_text_parser(self):#+++++++++
         parser_append = self.subparsers.add_parser('edit_task_text', help='Edit text')
         parser_append.add_argument('task_id', help='task id', default='Title')
         parser_append.add_argument('new_text', help='New text', default='Text')
         parser_append.set_defaults(func=self.view.edit_task_text)
 
-    def edit_task_status_parser(self):
+    def edit_task_status_parser(self):#+++++
         parser_append = self.subparsers.add_parser('edit_task_status', help='Edit status')
         parser_append.add_argument('task_id', help='task id', default='Title')
         parser_append.add_argument('new_status', help='New status', default='Text')
         parser_append.set_defaults(func=self.view.edit_task_status)
 
-    def get_subtasks_parser(self):
+    def get_subtasks_parser(self):#+++=
         parser_append = self.subparsers.add_parser('subtasks_of_task', help='Gets subtasks')
         parser_append.add_argument('task_id', help='task id', default='task id')
         parser_append.set_defaults(func=self.view.get_subtasks_of_task)
 
-    def share_task_permission_parser(self):
+    def share_task_permission_parser(self):#+++ проверь селект
         parser_append = self.subparsers.add_parser('share_permission', help='Share permission')
         parser_append.add_argument('new_user_id', help='', default='Login of users')
         parser_append.add_argument('task_id', help='task id', default='task id')

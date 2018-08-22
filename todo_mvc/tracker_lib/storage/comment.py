@@ -1,7 +1,7 @@
 from datetime import datetime
 from pony.orm import db_session
 import todo_mvc.tracker_lib.storage.task as task_storage
-from todo_mvc.tracker_lib.models import Task, PeriodicTask, User, Comment
+from todo_mvc.tracker_lib.models import Task, PeriodicTask, Comment
 import todo_mvc.tracker_lib.helpers.errors as errs
 from todo_mvc.tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 import logging
@@ -27,8 +27,7 @@ def create_comment_for_periodic_task(user_id, task_id, text, date):
 @db_session
 def create_comment_for_task(user_id, task_id, text):  # проверки можно ли писать данному пользователю комментарий
     task = Task[task_id]
-    user = User[user_id]
-    comment = Comment(text=text, user=user, task=task)
+    comment = Comment(text=text, user=user_id, task=task)
     task.comment.add(comment)
 
 
@@ -45,7 +44,7 @@ def get_comments_of_task(task_id):
 
 @db_session
 def check_is_it_user_comment(user_id, comment_id):
-    if User[user_id] is Comment[comment_id].user_id:
+    if user_id is Comment[comment_id].user_id:
         return True
     else:
         raise errs.AccessError()

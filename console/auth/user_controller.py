@@ -1,4 +1,4 @@
-import todo_mvc.tracker_lib.storage.user as user_storage
+import console.auth.user_storage as user_storage
 
 
 class UserController:
