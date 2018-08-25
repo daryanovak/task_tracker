@@ -1,0 +1,16 @@
+{% extends "tasks/../base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block content %}
+
+   <div>
+   {% for task in tasks %}
+      <div>{{ task.title }}</div>
+   {% endfor %}
+   </div>
+
+
+{% endblock %}
