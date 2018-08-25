@@ -8,4 +8,5 @@ class User(db.Entity):
     password = Required(int)
     token = Optional(LongStr)
 
+
 db.generate_mapping(create_tables=True)

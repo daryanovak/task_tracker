@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tracker_lib',
-    version="0.3",
+    version="1.0",
     license='MIT',
     description='tracker library',
     author='Darya Novak',

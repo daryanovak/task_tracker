@@ -1,6 +1,7 @@
 import unittest
 import tracker_lib.helpers.errors as errs
 from tracker_lib.controllers.task import TaskController
+from tracker_lib.database import db
 
 #python3.6 -m unittest discover
 #отдельная база для тестов
@@ -32,25 +33,25 @@ class TaskControllerTestCase(unittest.TestCase):
     def test_cron_periodic_task(self):
         with self.assertRaises(errs.TaskNotExistError):
             self.controller.create_periodic_task(title="title", text="text", status=1, start_date="01/02/12 00:00",
-                                                 date="02/02/12 00:00", period="* * * * *", parent_id=666)
+                                                 deadline="02/02/12 00:00", period="* * * * *", parent_id=666)
 
     def test_cron_string_periodic_task(self):
         with self.assertRaises(errs.CronValueError):
             self.controller.create_periodic_task(title="title", text="text,", status=1, start_date="01/02/12 00:00",
-                                                 date="02/02/12 00:00", period="* * help", parent_id=666)
+                                                 deadline="02/02/12 00:00", period="* * help", parent_id=666)
 
     def test_parent_id_periodic_task(self):
         with self.assertRaises(errs.TaskNotExistError):
             self.controller.create_periodic_task(title="title", text="text,", status=1, start_date="01/02/12 00:00",
-                                                 date="02/02/12 00:00", period="* * * * *", parent_id=666)
+                                                 deadline="02/02/12 00:00", period="* * * * *", parent_id=666)
 
     def test_delete_task(self):
         with self.assertRaises(errs.TaskNotExistError):
             self.controller.delete_task(task_id=89)
 
-    def test_delete_task(self):
-        with self.assertRaises(errs.UserNotHaveAccessToTask):
-            self.controller.delete_task(task_id=2)
+    # def test_delete_task(self):
+    #     with self.assertRaises(errs.UserNotHaveAccessToTask):
+    #         self.controller.delete_task(task_id=2)
 
 
 

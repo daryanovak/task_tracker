@@ -1,11 +1,12 @@
-from datetime import datetime
-from pony.orm import db_session
-import tracker_lib.storage.task as task_storage
-from tracker_lib.models import Task, PeriodicTask, Comment
-import tracker_lib.helpers.errors as errs
-from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 import logging
+from datetime import datetime
+
 from pony.orm import *
+
+import tracker_lib.helpers.errors as errs
+import tracker_lib.storage.task as task_storage
+from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
+from tracker_lib.models import Task, PeriodicTask, Comment
 
 logger = logging.getLogger('logger')
 
@@ -14,7 +15,7 @@ cph = CronPeriodHelper()
 
 
 @db_session
-def create_comment_for_periodic_task(user_id, task_id, text, date):
+def create_periodic_task_comment(user_id, task_id, text, date):
     if task_storage.check_periodic_task_exist(task_id=task_id, user_id=user_id):
         task = PeriodicTask[task_id]
 
@@ -27,14 +28,14 @@ def create_comment_for_periodic_task(user_id, task_id, text, date):
 
 
 @db_session
-def create_comment_for_task(user_id, task_id, text):  # проверки можно ли писать данному пользователю комментарий
+def create_task_comment(user_id, task_id, text):  # проверки можно ли писать данному пользователю комментарий
     task = Task[task_id]
     comment = Comment(text=text, user_id=user_id, task=task)
     task.comment.add(comment)
 
 
 @db_session
-def get_comments_of_task(task_id):
+def get_task_comments(task_id):
         task = Task[task_id]
         comments = task.comment
         comments = list(comments)
@@ -46,7 +47,7 @@ def get_comments_of_task(task_id):
 
 
 @db_session
-def check_is_it_user_comment(user_id, comment_id):
+def check_user_in_comment(user_id, comment_id):
     try:
         if user_id is Comment[comment_id].user_id:
             return True
@@ -67,7 +68,7 @@ def delete_comment(user_id, comment_id):
 
 
 # @db_session
-# def create_comment_of_task(user_id, task_id, text, date):  # проверки можно ли писать данному пользователю комментарий
+# def create_task_comment(user_id, task_id, text, date):  # проверки можно ли писать данному пользователю комментарий
 #     # task = None
 #     if date:
 #         # if task_storage.check_periodic_task_exist(task_id=task_id, user_id=user_id):

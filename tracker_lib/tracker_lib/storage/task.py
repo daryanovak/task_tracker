@@ -103,15 +103,15 @@ def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=N
 
 
 @db_session
-def add_periodic_task(user_id: int, title: str, text:str, status: int, tags: str, start_date: datetime, period: str,
-                      date=None, parent_id=None):
+def add_periodic_task(user_id: int, title: str, text: str, status: int, tags: str, start_date: datetime, period: str,
+                      deadline=None, parent_id=None):
     users = [user_id]
     if parent_id:
         parent_task = get_task_by_id(parent_id)
         users = parent_task['users']
 
     periodic_task = PeriodicTask(creator=user_id, title=title, text=text, status=status, tags=tags, start_date=start_date,
-                                 period=period, date=date, parent_id=parent_id, users=users)
+                                 period=period, date=deadline, parent_id=parent_id, users=users)
 
     logger.info('Periodic Task, with id = %s was created!' % periodic_task.id)
 
@@ -169,7 +169,7 @@ def edit_task(task_id: int, enum_parameter_value: Parameters, modified_parameter
 
 
 @db_session
-def get_subtask_of_task(user_id: int, task_id: int):
+def get_task_subtasks(user_id: int, task_id: int):
     tasks = select(t for t in Task
                   if user_id in t.users
                   if t.parent_id == task_id).prefetch(Task.title)
@@ -240,7 +240,7 @@ def get_tasks_on_period(user_id: int, start: datetime, end: datetime):
 
 
 @db_session
-def get_tasks_by_type_of_parameter(user_id: int, parameter: Parameters, parametr_value):
+def get_tasks_by_parameter_type(user_id: int, parameter: Parameters, parametr_value):
     if parameter == Parameters.TITLE:
             tasks = select(t for t in Task
                            if user_id in t.users

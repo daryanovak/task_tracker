@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import os
 import sys
-
+import tracker_lib.storage as c
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'web.settings')
+    help(c)
+    help()
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

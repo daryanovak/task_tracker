@@ -1,5 +1,7 @@
-import croniter
 from datetime import datetime
+
+import croniter
+
 import tracker_lib.helpers.errors as errs
 
 """* * * * * Команда, которая будет выполнена
@@ -14,7 +16,8 @@ import tracker_lib.helpers.errors as errs
 
 
 class CronPeriodHelper:
-    def check_croniter(period: str):
+
+    def is_valid_cron(period: str):
         try:
             iter = croniter.croniter(period, datetime.now())
             check = True
@@ -24,7 +27,9 @@ class CronPeriodHelper:
 
     def get_tasks_periods(self, start_date, end_date, input_string='* * * * *'):
         """
-        Returns all dates of periodic tasks  from start date to end by cron parameter
+
+        Returns all dates of periodic tasks  from start date to end by cron parameter.
+
         :param start_date: datetime
         :param end_date: datetime
         :param input_string: cron string "* * * * *"
@@ -44,7 +49,9 @@ class CronPeriodHelper:
 
     def in_period(self, period: str, date):
         """
+
         Checks availability of date in the cron period
+
         :param period: string (cron)
         :param date_timestamp: int (timestamp)
         :return: date in timestamp format
@@ -53,19 +60,19 @@ class CronPeriodHelper:
         itr = croniter.croniter(period, date.timestamp())
         return itr.get_next(datetime).timestamp() == date.timestamp()
 
-    """
-     def get_tasks_period_by_date(date, input_string='* * * * 2'):
-        itr = croniter.croniter(input_string, date)
-        date_prev_iteration = itr.get_prev(datetime)
-        now_date = datetime.now()
-        while date_prev_iteration > now_date:
-            date_prev_iteration = itr.get_prev(datetime)
-            print(date_prev_iteration)
-
-    def get_period(input_string, start_date, end_date):
-        itr = croniter.croniter(input_string, start_date)
-        date_next_iteration = itr.get_next(datetime)
-        period_timestamp = (date_next_iteration.timestamp() - start_date.timestamp())
-        return period_timestamp
-    """
-
+    #
+    #  def get_tasks_period_by_date(date, input_string='* * * * 2'):
+    #     itr = croniter.croniter(input_string, date)
+    #     date_prev_iteration = itr.get_prev(datetime)
+    #     now_date = datetime.now()
+    #     while date_prev_iteration > now_date:
+    #         date_prev_iteration = itr.get_prev(datetime)
+    #         print(date_prev_iteration)
+    #
+    # def get_period(input_string, start_date, end_date):
+    #     itr = croniter.croniter(input_string, start_date)
+    #     date_next_iteration = itr.get_next(datetime)
+    #     period_timestamp = (date_next_iteration.timestamp() - start_date.timestamp())
+    #     return period_timestamp
+    #
+    #

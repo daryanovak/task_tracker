@@ -2,7 +2,7 @@
 
 The library tracker_lib contains the basic functionality for the creation of the organizer.
 
-###The features of the library;
+###The features of the library:
 1. User authorization system
 2. Work with one-time tasks
 3. Work with periodic tasks
@@ -14,11 +14,13 @@ The library tracker_lib contains the basic functionality for the creation of the
 9. Tasks display in a given interval
 10. Superuser mode
 
+###Install:
+
 
 ###The structure of the library:
 ```
  ── tracker_lib
-│   ├── lib
+│   ├────
 │   │   ├── controllers
 │   │   │  
 │   │   ├── helpers
@@ -51,6 +53,7 @@ Unit tests are created for the automatic check of the correct program work
 For example, in order to import the class of TaskController from the module Controllers
 ```
 
-import tracker_lib.lib.controllers.TaskController as task_controller
+from tracker_lib.controllers.task import TaskController
+
 ``` 
  

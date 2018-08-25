@@ -121,27 +121,28 @@ class UserNotHaveAccessToTaskError(Exception):
 
 class InvalidTypeParameterError(Exception):
     def __init__(self):
-        self.code = 14
+        self.code = 16
         self.name = "InvalidTypeParameter"
         self.desc = "Invalid type of parametr"
 
 
 class NoSubtaskError(Exception):
     def __init__(self):
-        self.code = 15
+        self.code = 17
         self.name = "NoSubtaskError"
         self.desc = "Task don't have subtasks"
 
+
 class CommentAccessError(Exception):
     def __init__(self):
-        self.code = 16
+        self.code = 18
         self.name = "CommentAccessError"
         self.desc = "You don't have access to this comment"
 
 
 class CommentNotFoundError(Exception):
     def __init__(self):
-        self.code = 17
+        self.code = 19
         self.name = "CommentNotFoundError"
         self.desc = "Comment not found"
 

@@ -1,11 +1,10 @@
-from enum import Enum
 from datetime import datetime
+from enum import Enum
 
-from pony.orm.serialization import to_dict
-
-from tracker_lib.helpers.storage_helper import StorageHelper
 from pony.orm import *
-from.database import db
+from tracker_lib.helpers.storage_helper import StorageHelper
+
+from .database import db
 
 
 class Parameters(Enum):
