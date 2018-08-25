@@ -25,6 +25,9 @@ wheels/
 .venv
 env/
 venv/
+web_venv
+cnsl_venv
+v_venv
 ENV/
 env.bak/
 venv.bak/
