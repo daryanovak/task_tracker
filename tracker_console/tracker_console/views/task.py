@@ -51,22 +51,10 @@ class TaskView:
         except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
 
-    def edit_task_title(self, args):
+    def edit_task(self, args):
         try:
-            self.controller.edit_task_title(args.task_id, args.new_title)
+            self.controller.edit_task(args.task_id, {args.parameter: args.new_parameter})
         except (errs.AccessError, errs.TaskNotExistError, errs.InvalidTypeParameterError) as e:
-            errs_help.console_print(e)
-
-    def edit_task_text(self, args):
-        try:
-            self.controller.edit_task_text(args.task_id, args.new_text)
-        except (errs.TaskNotExistError, errs.AccessError, errs.InvalidTypeParameterError) as e:
-            errs_help.console_print(e)
-
-    def edit_task_status(self, args):
-        try:
-            self.controller.edit_task_status(args.task_id, args.new_status)
-        except (errs.TitleError, errs.TaskNotExistError, errs.StatusValueError, errs.InvalidTypeParameterError) as e:
             errs_help.console_print(e)
 
     def get_tasks_by_tag(self, args):
@@ -81,7 +69,7 @@ class TaskView:
 
     def get_subtasks_of_task(self, args):
         try:
-            subtasks = self.controller.get_subtasks_of_task(args.task_id)
+            subtasks = self.controller.get_task_subtasks(args.task_id)
             for subtask in subtasks:
                 print(str(subtask.id) + "--id--" + " " + subtask.title +" " + subtask.text + " " + str(subtask.status))
         except (errs.TaskNotExistError, errs.AccessError, errs.NoSubtaskError) as e:

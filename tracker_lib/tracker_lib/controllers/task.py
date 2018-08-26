@@ -5,6 +5,7 @@ The module requires an already authorized user.
 
 """
 import logging
+import typing
 from datetime import datetime, timedelta
 
 from pony.orm import *
@@ -29,6 +30,14 @@ class TaskController:
     def __init__(self, user_id):
         self.cph = CronPeriodHelper
         self.user_id = user_id
+        self.__update_status()
+
+    def __update_status(self):
+        tasks = task_storage.get_tasks(self.user_id)
+
+        for task in tasks:
+            if task['date'] and task['date'] > datetime.now():
+                task_storage.edit_task(self.user_id, {'status': Status.FAILED})
 
     def check_permission(self, user_id, task_id):
         """
@@ -208,78 +217,27 @@ class TaskController:
             logger.error(errs.AccessError().name)
             raise errs.AccessError()
 
-    def edit_task(self, task_id: int, edit_parameter: Parameters, new_parametr_value):
+    def edit_task(self, task_id: int, edited_task: typing.Dict):
         """
 
         Function which allows you edit the task parameters.
 
         :param task_id: task id
-        :param edit_parameter: enum Parameters, which allows select type of changeable parameter
-        :param new_parametr_value:_value: new value of changeable parameter, should be correct type.
+        :param edited_task: contains parameters of edited task
         """
         if self.check_permission(task_id=task_id, user_id=self.user_id):
-            return_value = task_storage.edit_task(task_id=task_id, enum_parameter_value=edit_parameter,
-                                                  modified_parameter=new_parametr_value)
+            return_value = task_storage.edit_task(task_id=task_id, edited_task=edited_task)
 
             if return_value == errs.TaskNotExistError().code:
                 logger.error(errs.InvalidTypeParameterError().name)
                 raise errs.TaskNotExistError()
 
-            if return_value:
-                logger.info('Edit task %s with id = %s. New title = %s!' % (edit_parameter.name, task_id,
-                                                                            str(new_parametr_value)))
+            # if return_value:
+            #     logger.info('Edit task %s with id = %s. New title = %s!' % (edit_parameter.name, task_id,
+            #                                                                 str(new_parametr_value)))
         else:
             logger.error(errs.TaskNotExistError().name)
             raise errs.TaskNotExistError()
-
-    def edit_task_title(self, task_id: int, new_title: str):
-        """
-
-        Changes a task title by task id
-
-        :param task_id:  task id : int
-        :param new_title: title : str
-        """
-        self.edit_task(task_id=task_id, edit_parameter=Parameters.TITLE, new_parametr_value= new_title)
-
-    def edit_task_text(self, task_id: int, new_text: str):
-        """
-
-        Changes a task text by task id
-
-        :param task_id: task id
-        :param new_text: new text
-        """
-        self.edit_task(task_id=task_id, edit_parameter=Parameters.TEXT, new_parametr_value=new_text)
-
-    def edit_task_status(self, task_id: int, new_status):
-        """
-
-        Changes a task status by task id
-
-        :param task_id: task id
-        :param new_status: new status {0,1,2} int
-        """
-        if new_status.isdigit():
-            new_status = int(new_status)
-            values = [item.value for item in Status]
-
-            if new_status in values:
-
-                if type(new_status) is int:
-                    self.edit_task(task_id=task_id, new_parametr_value=new_status, edit_parameter=Parameters.STATUS)
-
-                else:
-                    logger.error(errs.InvalidTypeParameterError().name)
-                    raise errs.InvalidTypeParameterError()
-
-            else:
-                logger.error(errs.StatusValueError().name)
-                raise errs.StatusValueError()
-
-        else:
-            logger.error(errs.InvalidTypeParameterError().name)
-            raise errs.InvalidTypeParameterError()
 
     def get_task_subtasks(self, task_id: int):
         """

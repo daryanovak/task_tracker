@@ -1,6 +1,7 @@
 import _pickle as cPickle
 import datetime
 import logging
+import typing
 
 from pony.orm import *
 
@@ -141,29 +142,10 @@ def delete_task(task_id: int):
 
 
 @db_session
-def edit_task(task_id: int, enum_parameter_value: Parameters, modified_parameter):
+def edit_task(task_id: int, edited_task: typing.Dict):
     task = Task[task_id]
     if task:
-        if enum_parameter_value == Parameters.TITLE:
-            task.title = modified_parameter
-            return True
-
-        if enum_parameter_value == Parameters.TEXT:
-            task.text = modified_parameter
-            return True
-
-        if enum_parameter_value == Parameters.STATUS:
-            task.status = modified_parameter
-            return True
-
-        if enum_parameter_value == Parameters.TAGS:
-            task.tags = modified_parameter
-            return True
-
-        if enum_parameter_value == Parameters.PARENT_ID:
-            task.parent_id = modified_parameter
-            return True
-
+        task.set(**edited_task)
     else:
         return errs.TaskNotExistError().code
 

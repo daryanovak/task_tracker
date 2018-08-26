@@ -15,9 +15,7 @@ class TaskCommandParsers:
         self.get_tasks_by_tag_parser()
         self.get_subtasks_parser()
         self.get_tasks_on_period_parser()
-        self.edit_task_title_parser()
-        self.edit_task_text_parser()
-        self.edit_task_status_parser()
+        self.edit_task_parser()
         self.share_task_permission_parser()
 
     def init_unauthorized_commands(self):
@@ -61,26 +59,15 @@ class TaskCommandParsers:
         parser_append.add_argument('task_id', help='task id', default='')
         parser_append.set_defaults(func=self.view.get_task_by_id)
 
-    def edit_task_title_parser(self):#++++++
-        parser_append = self.subparsers.add_parser('edit_task_title', help='Edit title')
+    def edit_task_parser(self):#++++++
+        parser_append = self.subparsers.add_parser('edit_task', help='Edit title')
         parser_append.add_argument('task_id', help='task id', default=None)
-        parser_append.add_argument('new_title', help='new title', default='Title')
-        parser_append.set_defaults(func=self.view.edit_task_title)
-
-    def edit_task_text_parser(self):#+++++++++
-        parser_append = self.subparsers.add_parser('edit_task_text', help='Edit text')
-        parser_append.add_argument('task_id', help='task id', default='Title')
-        parser_append.add_argument('new_text', help='New text', default='Text')
-        parser_append.set_defaults(func=self.view.edit_task_text)
-
-    def edit_task_status_parser(self):#+++++
-        parser_append = self.subparsers.add_parser('edit_task_status', help='Edit status')
-        parser_append.add_argument('task_id', help='task id', default='Title')
-        parser_append.add_argument('new_status', help='New status', default='Text')
-        parser_append.set_defaults(func=self.view.edit_task_status)
+        parser_append.add_argument('parameter', help='parameter', default=None)
+        parser_append.add_argument('new_parameter', help='new parameter', default='Title')
+        parser_append.set_defaults(func=self.view.edit_task)
 
     def get_subtasks_parser(self):#+++=
-        parser_append = self.subparsers.add_parser('subtasks_of_task', help='Gets subtasks')
+        parser_append = self.subparsers.add_parser('get_subtasks', help='Gets subtasks')
         parser_append.add_argument('task_id', help='task id', default='task id')
         parser_append.set_defaults(func=self.view.get_subtasks_of_task)
 

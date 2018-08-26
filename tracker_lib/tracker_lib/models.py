@@ -24,7 +24,7 @@ class Status(Enum):
 
 class Task(db.Entity):
     def __str__(self):
-        return self.title and (str(self.id) + ' '+ self.title + ' ' + self.text + ' ' + str(self.status) + ' '
+        return self.title and (str(self.id) + ' ' + self.title + ' ' + self.text + ' ' + str(self.status) + ' '
                                + self.tags + ' ' + StorageHelper.datetime_to_str(self.date))
     id = PrimaryKey(int, auto=True)
     creator = Required(int)

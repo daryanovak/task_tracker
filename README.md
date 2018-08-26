@@ -3,6 +3,7 @@ TaskTracker is meant to be a dead simple text based task manager. There are many
 First of all,it manages multiple types of tasks(single or periodic), creates subtasks, assigns project members to tasks, comments on tasks, assigns project specific tags to tasks and much more. Using Python3.
 
 ## Structure
+
 ####Library
 tracker_lib is a core of TaskTracker. All activities about managing tasks, users and projects located inside of core.
 
@@ -33,14 +34,14 @@ whose login will be used to perform actions
 ```
 Now you can start use to console version of TaskTracker. For example, create task:
 ```
- create_task title1 text1 0 --tags "example,tutorial"
+todo create_task title1 text1 0 --tags "example,tutorial"
 ```
 
 
 ##Running the tests
 How to run the automated tests for this system?
 ```
-python3.6 ./todo_mvc/run_test.py
+python3.6 -m unittest discover
 
 ```
 ##Contributing
