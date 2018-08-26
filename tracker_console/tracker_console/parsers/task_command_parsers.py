@@ -22,13 +22,13 @@ class TaskCommandParsers:
         pass
 
     def create_task_parser(self):
-        parser_append = self.subparsers.add_parser('create_task', help='Create new tasks.py')
-        parser_append.add_argument('title', help='Title of tasks.py', default='Title')
-        parser_append.add_argument('text', help='Text of tasks.py', default='Empty text')
-        parser_append.add_argument('status', help='Complete status', default='0', choices=['0', '1', '2'])
-        parser_append.add_argument('--tags', help='Tags', default='')
-        parser_append.add_argument('--parent_id', help='Parent title', default='')
-        parser_append.add_argument('--date', help="%d/%m/%y %H:%M", default=0)
+        parser_append = self.subparsers.add_parser('create_task', help='Creates a new task')
+        parser_append.add_argument('title', help='title task', default='Title')
+        parser_append.add_argument('text', help='text task', default='Empty text')
+        parser_append.add_argument('status', help='task status', default='0', choices=['0', '1', '2'])
+        parser_append.add_argument('--tags', help='tags', default='')
+        parser_append.add_argument('--parent_id', help='parent id', default='')
+        parser_append.add_argument('--date', help= "date in format 'd/m/y H:M'", default=0)
 
         parser_append.set_defaults(func=self.view.create_new_task)
 
@@ -47,7 +47,7 @@ class TaskCommandParsers:
 
     def delete_task_parser(self):#+++
         parser_append = self.subparsers.add_parser('delete_task', help='Delete task')
-        parser_append.add_argument('task_id', help='id', default='')
+        parser_append.add_argument('task_id', help='task id', default='')
         parser_append.set_defaults(func=self.view.delete_task)
 
     def get_tasks_parser(self):#+++
@@ -73,7 +73,7 @@ class TaskCommandParsers:
 
     def share_task_permission_parser(self):#+++ проверь селект
         parser_append = self.subparsers.add_parser('share_permission', help='Share permission')
-        parser_append.add_argument('new_user_id', help='', default='Login of users')
+        parser_append.add_argument('new_user_id', help='new', default='Login of users')
         parser_append.add_argument('task_id', help='task id', default='task id')
         parser_append.set_defaults(func=self.view.share_task_permission)
 

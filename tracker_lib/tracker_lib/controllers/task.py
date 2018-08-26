@@ -36,8 +36,8 @@ class TaskController:
         tasks = task_storage.get_tasks(self.user_id)
 
         for task in tasks:
-            if task['date'] and task['date'] > datetime.now():
-                task_storage.edit_task(self.user_id, {'status': Status.FAILED})
+            if task['date'] and task['date'] < datetime.now():
+                task_storage.edit_task(task['id'], {'status': Status.FAILED.value})
 
     def check_permission(self, user_id, task_id):
         """
