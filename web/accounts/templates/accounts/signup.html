@@ -12,8 +12,8 @@
         {% csrf_token %}
         {% bootstrap_form form %}
         <input class="btn btn-dark-green" type="submit" value="Sign up" />
-        <button type="button" class="btn btn-dark-green">Dark-green</button>
         <input type="hidden" name="next" value="{{ next }}" />
+        <p><a href="{% url 'login' %}">Do you have account? Please login.</a></p>
     </form>
 
 {% endblock %}

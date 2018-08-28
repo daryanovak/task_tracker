@@ -1,0 +1,88 @@
+.task-detail__users {
+    background-color: #F2EDED;
+    width: 260px;
+    margin: 4px;
+    overflow: auto;
+    height: calc(100% - 68px);
+}
+
+.users__user-item {
+    display: flex;
+    background-color: white;
+    height: 38px;
+    align-items: center;
+    margin: 6px;
+}
+
+.comments__comment-item {
+    background-color: white;
+    align-items: center;
+    margin: 6px;
+}
+
+.comment-item__owner {
+    border-bottom: #F2EDED 1px solid;
+    padding: 0 6px 0;
+}
+
+.comment-item__text {
+    padding: 0 6px 0;
+}
+
+.user-item__delete-button {
+    color: crimson;
+    margin-left: auto;
+}
+
+.user-item__delete-button:hover {
+    color: red;
+}
+
+.task-detail__info {
+    flex-grow: 1;
+}
+
+.task-detail {
+    display: flex;
+    margin: 4px;
+}
+
+.task-detail__comments {
+    background-color: #F2EDED;
+    width: 260px;
+    margin: 4px;
+    height: calc(100% - 68px);
+    display: flex;
+    flex-direction: column;
+}
+
+.comments {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.users__header-caption {
+    padding: 16px;
+}
+
+.comments__header-caption{
+    padding: 16px;
+}
+
+.comment-task__form {
+    height: 100px;
+}
+
+.comment-task-form_textarea {
+    margin: 6px 6px;
+    width: 236px;
+}
+
+.comment-form__button {
+    margin: 6px 6px;
+    width: 236px;
+}
+
+.user-item__name {
+    padding: 0 6px 0;
+}

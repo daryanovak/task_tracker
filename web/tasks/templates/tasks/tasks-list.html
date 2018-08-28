@@ -1,16 +1,42 @@
-{% extends "tasks/../base.html" %}
-{% load bootstrap4 %}
+
 {% load static %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
+{% load bootstrap4 %}
 
-{% block content %}
+<link rel="stylesheet" href="{% static 'tasks/css/tasks-list.css' %}">
+<script async src="{% static 'tasks/js/tasks-list.js' %}"></script>
+<div class="tasks-list__content">
+    <div class="tags-sidebar">
+        <div data-tag="all" class="all-tags__button tags__button active">All</div>
+        <div class="tags-title">
+            <i class="fas fa-tags"></i>
+            <span> Tags</span>
+        </div>
+        <div class="tags">
+            {% for tag in tags %}
+                <div class="tags__button"  data-tag={{ tag }}>{{ tag }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="task-list">
+        <a class="add-task-button btn btn-primary" href="/tasks/create">
+            <i class="fas fa-plus"></i>
+            Add Task
+        </a>
+        {% for task in tasks %}
+            <div class="task">
+                <div class="task__status" data-status={{ task.status }} ></div>
+                <a class="task__title" href={% url 'detail' task.id %}>{{ task.title }}</a>
+                <a class="task__button task__add-button" href={% url 'parent' task.id %}>
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a class="task__button task__edit-button" href={% url 'edit' task.id %}>
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+                <a class="task__button task__delete-button" href={% url 'delete' task.id %}>
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 
-   <div>
-   {% for task in tasks %}
-      <div>{{ task.title }}</div>
-   {% endfor %}
-   </div>
-
-
-{% endblock %}
+</div>

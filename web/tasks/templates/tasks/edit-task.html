@@ -1,0 +1,18 @@
+{% extends "todos/../base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block content %}
+
+    <form class="create-task__form" action="/tasks/{{ task.id }}/edit" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <input class="btn btn-success" type="submit" value="Edit task" />
+        <a href="/tasks" class="btn btn-danger" >Cancel</a>
+    </form>
+
+{% endblock %}

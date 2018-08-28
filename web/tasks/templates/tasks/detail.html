@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% load filters %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tasks/css/detail.css' %}">
+
+    <div class="task-detail" data-task-id={{ task.id }}>
+        <div class="task-detail__users">
+            <h2 class="users__header-caption">
+                <i class="fas fa-users"></i>
+                Users
+            </h2>
+            <div class="users__user-item">
+                <div class="user-item__name">{{ owner }} (owner)</div>
+            </div>
+            {% if user_list %}
+                {% for user in user_list %}
+                    <div class="users__user-item">
+                        <div class="user-item__name">{{ user }}</div>
+                        {% csrf_token %}
+                        <a class="btn text-danger user-item__delete-button" data-user-id={{ user.id }} >
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {#            <form class="users__add-user__form" action="/tasks/{{ task.id }}/share_permission" method="post">#}
+            {#                {% csrf_token %}#}
+            {#                <input placeholder="Add user" class="form-control add-user__form__input" type="text" name="user" id="id_user"/>#}
+            {#                <input class="btn btn-success" type="submit" value="+" >#}
+            {#                <div class="invalid-feedback users__add-user__form_invalid">#}
+            {#                    User not found#}
+            {#                </div>#}
+            {#            </form>#}
+
+        </div>
+        <div class="task-detail__info">
+            <h2>{{ task.title }} {{ task.status | get_status }}</h2>
+            <p>{{ task.text }}</p>
+            <a class="btn btn-danger" href="/tasks"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <div class="task-detail__comments">
+            <h2 class="comments__header-caption">
+                <i class="fas fa-comments"></i>
+                Comments
+            </h2>
+            <div class="comments">
+                {% if comment_list %}
+                    {% for comment in comment_list %}
+                        <div class="comments__comment-item">
+                            <div class="comment-item__owner">{{ comment.login | get_user }}</div>
+                            <div class="comment-item__text">{{ comment.text }}</div>
+                        </div>
+                    {% endfor %}
+
+                {% else %}
+                    <p>No comments are available.</p>
+                {% endif %}
+
+            </div>
+
+            <form class="comment-task__form" action="/tasks/{{ task.id }}/comment" method="post">
+                {% csrf_token %}
+                <textarea class="form-control comment-task-form_textarea" name="text" id="id_text" cols="20" rows="2"></textarea>
+                <input class="btn btn-success comment-form__button" type="submit" value="Comment task" />
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

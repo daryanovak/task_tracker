@@ -28,7 +28,7 @@ class Task(db.Entity):
                                + self.tags + ' ' + StorageHelper.datetime_to_str(self.date))
     id = PrimaryKey(int, auto=True)
     creator = Required(int)
-    title = Required(LongStr)
+    title = Required(str)
     text = Required(str)
     status = Required(int)
     tags = Optional(str)

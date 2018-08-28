@@ -19,7 +19,7 @@ class CommentController:
     def __init__(self, user_id):
         self.user_id = user_id
 
-    def create_task_comment(self, task_id: int, text: str, date: datetime):
+    def create_task_comment(self, task_id: int, text: str, date: datetime =None):
         """
 
         Creates Comment () for task with task_id which belongs to user with user_id.

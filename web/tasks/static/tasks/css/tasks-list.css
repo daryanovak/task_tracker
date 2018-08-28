@@ -1,0 +1,110 @@
+.add-task-button {
+    border-radius: 0;
+    margin: 6px;
+    display: block;
+}
+
+.tasks-list__content {
+    display: flex;
+    width: 100%;
+
+}
+
+.tags-sidebar {
+    background-color: #F2EDED;
+    width: 200px;
+    margin: 6px;
+    overflow: auto;
+    height: calc(100% - 68px);
+}
+
+
+.task-list {
+    flex-grow: 1;
+    height: 100%;
+    overflow: auto;
+}
+
+.tags__button {
+
+}
+
+.tags-title {
+    background: white;
+    display: flex;
+    height: 48px;
+    align-items: center;
+}
+
+.all-tags__button {
+
+}
+
+.tags__button {
+    background: white;
+    padding: 6px 12px;
+    margin: 2px;
+}
+
+.tags__button.active {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.task {
+    display: flex;
+    background-color: #F2EDED;
+    height: 48px;
+    align-items: center;
+    margin: 6px;
+}
+
+.task__status {
+    width: 60px;
+    height: 100%;
+}
+
+.task__title {
+    flex-grow: 1;
+    padding: 0 12px;
+}
+
+.task__status[data-status="0"] {
+    background-color: #ffc107;
+}
+
+.task__status[data-status="1"] {
+    background-color: #28a745;
+}
+
+.task__status[data-status="2"] {
+    background-color:#dc3545;
+}
+
+.task__button {
+    padding: 0 12px;
+}
+
+.task__button:hover {
+    cursor: pointer;
+}
+
+.task__delete-button {
+    color: crimson;
+}
+
+.task__delete-button:hover {
+    color: red;
+}
+
+.task__edit-button:hover {
+    color: dodgerblue;
+}
+
+.task__add-button:hover {
+    color: #28a745;
+}
+
+.task__add-button {
+    color: forestgreen;
+}

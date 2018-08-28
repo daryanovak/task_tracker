@@ -280,7 +280,7 @@ class TaskController:
             logger.error(errs.AccessError().name)
             raise errs.AccessError()
 
-    def get_task_by_tag(self, tag: str):
+    def get_tasks_by_tag(self, tag: str):
         """
 
         Gets all tasks which have input tag.
@@ -288,7 +288,7 @@ class TaskController:
         :param tag:
         :return: list of task object
         """
-        if type(tag) is str:
+        if isinstance(tag, str):
             return task_storage.get_tasks_by_parameter_type(user_id=self.user_id, parameter=Parameters.TAGS, parametr_value=tag)
 
         else:

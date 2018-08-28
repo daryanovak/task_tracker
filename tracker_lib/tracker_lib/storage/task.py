@@ -226,7 +226,7 @@ def get_tasks_by_parameter_type(user_id: int, parameter: Parameters, parametr_va
     if parameter == Parameters.TITLE:
             tasks = select(t for t in Task
                            if user_id in t.users
-                           if t.title == parametr_value)
+                           if t.title == parametr_value).prefetch(Task.title)
             pickled_data = cPickle.dumps(tasks)
             tasks = cPickle.loads(pickled_data)
 
@@ -237,10 +237,13 @@ def get_tasks_by_parameter_type(user_id: int, parameter: Parameters, parametr_va
             return Task.get(status=parametr_value)
 
     if parameter == Parameters.TAGS:
-            tasks = select(t for t in Task
-                           if user_id in t.users).prefetch(Task.title)
+            tasks = select(t for t in Task).prefetch(Task.title)
+            _tasks = []
+            for task in tasks:
+                if user_id in task.users:
+                        _tasks.append(task)
 
-            pickled_data = cPickle.dumps(tasks)
+            pickled_data = cPickle.dumps(_tasks)
             tasks = cPickle.loads(pickled_data)
 
             lst = []
