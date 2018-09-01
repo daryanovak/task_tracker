@@ -1,13 +1,13 @@
-import logging
-
 import tracker_lib.helpers.error_helper as errs_help
 import tracker_lib.helpers.errors as errs
+from tracker_lib.helpers.logging_helper import get_logger
 from tracker_lib.controllers.task import TaskController
 
 from tracker_console.auth.user_controller import UserController
 from tracker_console.helpers import get_token
+import tracker_console.task_helper as task_helper
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
 class TaskView:
@@ -26,7 +26,7 @@ class TaskView:
     def create_new_periodic_task(self, args):
         try:
             self.controller.create_periodic_task(args.title, args.text, args.status, args.start_date,
-                                             args.date, args.period,  args.tags, args.parent_id)
+                                                 args.date, args.period,  args.tags, args.parent_id)
         except (errs.TaskWithParentIdNotExistError, errs.TaskNotExistError, errs.CronValueError) as e:
             errs_help.console_print(e)
         # except ValueError:
@@ -41,37 +41,43 @@ class TaskView:
     def get_tasks(self, args):
         tasks = self.controller.get_tasks()
         for task in tasks:
-            #task_help.print_task(task)
-            print(task)
+            task_helper.print_task(task)
+            self.__print_subtasks(task['subtasks'], 2)
 
     def get_task_by_id(self, args):
         try:
             task = self.controller.get_task_by_id(args.task_id)
-            print(task)
+            task_helper.print_task(task)
         except (errs.TaskNotExistError, errs.AccessError) as e:
             errs_help.console_print(e)
 
     def edit_task(self, args):
         try:
             self.controller.edit_task(args.task_id, {args.parameter: args.new_parameter})
-        except (errs.AccessError, errs.TaskNotExistError, errs.InvalidTypeParameterError) as e:
+        except (errs.AccessError, errs.CronValueError, errs.TaskNotExistError, errs.StatusValueError,
+                errs.IncorrectDateValueError) as e:
             errs_help.console_print(e)
 
     def get_tasks_by_tag(self, args):
         try:
-            tasks = self.controller.get_task_by_tag(args.tag)
+            tasks = self.controller.get_tasks_by_tag(args.tag)
 
             for task in tasks:
-                print(str(task.id) + "--id--" + " " + task.title +" " + task.text + " " + str(task.status))
-
+                # print(str(task.id) + "--id--" + " " + task.title +" " + task.text + " " + str(task.status))
+                task_helper.print_task(task)
         except (errs.TaskNotExistError, errs.TitleError) as e:
             errs_help.console_print(e)
 
-    def get_subtasks_of_task(self, args):
+    def __print_subtasks(self, subtasks, offset = 0):
+        for subtask in subtasks:
+            task_helper.print_task(subtask, offset)
+            self.__print_subtasks(subtask['subtasks'], offset + 2)
+
+    def get_task_subtasks(self, args):
         try:
             subtasks = self.controller.get_task_subtasks(args.task_id)
-            for subtask in subtasks:
-                print(str(subtask.id) + "--id--" + " " + subtask.title +" " + subtask.text + " " + str(subtask.status))
+            self.__print_subtasks(subtasks)
+
         except (errs.TaskNotExistError, errs.AccessError, errs.NoSubtaskError) as e:
             errs_help.console_print(e)
 
@@ -87,7 +93,8 @@ class TaskView:
             date = list(date_tasks.keys())[0]
             print(date)
             for task in date_tasks[date]:
-                print(task)
+                task_helper.print_task(task)
+
         # for task in tasks:
         #     print(str(task.id) + "--id--" + " " + task.title + " " + task.text + " " + str(task.status))
         # try:

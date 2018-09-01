@@ -57,7 +57,7 @@ class CronPeriodHelper:
         :return: date in timestamp format
         """
         date = date if isinstance(date, datetime) else datetime.strptime(date, '%d/%m/%y')
-        itr = croniter.croniter(period, date.timestamp())
+        itr = croniter.croniter(period, date.timestamp()-1)
         return itr.get_next(datetime).timestamp() == date.timestamp()
 
     #

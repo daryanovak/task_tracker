@@ -4,6 +4,7 @@
 
 {% block content %}
     <link rel="stylesheet" href="{% static 'tasks/css/detail.css' %}">
+    <script async src="{% static 'tasks/js/taskDetail.js' %}"></script>
 
     <div class="task-detail" data-task-id={{ task.id }}>
         <div class="task-detail__users">
@@ -11,37 +12,71 @@
                 <i class="fas fa-users"></i>
                 Users
             </h2>
-            <div class="users__user-item">
-                <div class="user-item__name">{{ owner }} (owner)</div>
-            </div>
             {% if user_list %}
-                {% for user in user_list %}
+                {% for task_user in user_list %}
                     <div class="users__user-item">
-                        <div class="user-item__name">{{ user }}</div>
-                        {% csrf_token %}
-                        <a class="btn text-danger user-item__delete-button" data-user-id={{ user.id }} >
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
+                        {% if task_user.id == task.creator %}
+                            <div class="user-item__name">{{ task_user }} (owner)</div>
+                        {% else %}
+                            <div class="user-item__name">{{ task_user }}</div>
+                        {% endif %}
+
+                        {% if task.creator == user.id %}
+                            {% csrf_token %}
+                            <a class="btn text-danger user-item__delete-button" data-user-id={{ task_user.id }} >
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
 
-            {#            <form class="users__add-user__form" action="/tasks/{{ task.id }}/share_permission" method="post">#}
-            {#                {% csrf_token %}#}
-            {#                <input placeholder="Add user" class="form-control add-user__form__input" type="text" name="user" id="id_user"/>#}
-            {#                <input class="btn btn-success" type="submit" value="+" >#}
-            {#                <div class="invalid-feedback users__add-user__form_invalid">#}
-            {#                    User not found#}
-            {#                </div>#}
-            {#            </form>#}
+            {% if task.creator == user.id %}
+                <form class="users__add-user__form" action="/tasks/{{ task.id }}/share_permission" method="post">
+                    {% csrf_token %}
+                    <div class="users-form-container">
+                        <input placeholder="Add user" class="form-control add-user__form__input" type="text" name="user" id="id_user"/>
+                        <input class="btn btn-success" type="submit" value="+" >
+                        <div class="invalid-feedback users__add-user__form_invalid">
+                            User not found
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
 
         </div>
         <div class="task-detail__info">
-            <h2>{{ task.title }} {{ task.status | get_status }}</h2>
-            <p>{{ task.text }}</p>
-            <a class="btn btn-danger" href="/tasks"><i class="fas fa-arrow-left"></i> Back</a>
-        </div>
+            <div class="task-detail__headline-container">
+                <h2 class="task-detail__headline">{{ task.title }} </h2>
+                <a class="btn btn-danger" href="/tasks"><i class="fas fa-arrow-left"></i> Back</a>
 
+            </div>
+            <div class="task-detail__status">
+                <b>{{ task.status | get_status }}</b>
+            </div>
+            {% if task.tags %}
+                <div class="task-detail__tags">
+                    <i class="fas fa-hashtag"></i> {{ task.tags }}
+                </div>
+            {% endif %}
+            {% if task.start_date %}
+                <div class="task-detail__start-date">
+                   <i class="far fa-calendar-alt"></i> <b>Start Date:</b> {{ task.start_date }}
+                </div>
+            {% endif %}
+            {% if task.date %}
+                <div class="task-detail__date">
+                 <i class="far fa-calendar-alt"></i> <b>Deadline:</b> {{ task.date }}
+                </div>
+            {% endif %}
+            {% if task.period %}
+                <div class="task-detail__period">
+                  <i class="far fa-clock"></i>  <b>Period:</b> {{ task.period }}
+                </div>
+            {% endif %}
+            <hr>
+            <p class="task-detail__text"> <b>Text:</b> {{ task.text }}</p>
+        </div>
         <div class="task-detail__comments">
             <h2 class="comments__header-caption">
                 <i class="fas fa-comments"></i>

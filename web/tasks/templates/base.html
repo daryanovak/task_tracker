@@ -13,12 +13,12 @@
     <!-- Bootstrap core CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
     <!-- Material Design Bootstrap -->
-     <link rel="stylesheet" href="{% static 'tasks/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'tasks/css/styles.css' %}">
 </head>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Todos</a>
+    <a class="navbar-brand" href="/tasks">Todos</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -26,14 +26,14 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
         </ul>
-                {% if user.is_authenticated %}
-                     <form class="form-inline my-2 my-lg-0">
-                    <div class="nav-item">
-                        <a class="nav-link" href="#">{{ user_id.get_username }}</a>
-                    </div>
-                         <a href="/accounts/logout" class="btn btn-outline-danger my-2 my-sm-0">Log out</a>
-                </form>
-                {% endif %}
+        {% if user.is_authenticated %}
+            <form class="form-inline my-2 my-lg-0">
+                <div class="nav-item">
+                    <a class="nav-link" href="#">{{ user.username}}</a>
+                </div>
+                <a href="/accounts/logout" class="btn btn-outline-danger my-2 my-sm-0">Log out</a>
+            </form>
+        {% endif %}
     </div>
 </nav>
 

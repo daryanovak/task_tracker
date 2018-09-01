@@ -1,6 +1,6 @@
 .task-detail__users {
     background-color: #F2EDED;
-    width: 260px;
+    min-width: 260px;
     margin: 4px;
     overflow: auto;
     height: calc(100% - 68px);
@@ -40,6 +40,7 @@
 
 .task-detail__info {
     flex-grow: 1;
+    word-wrap: break-word;
 }
 
 .task-detail {
@@ -49,7 +50,7 @@
 
 .task-detail__comments {
     background-color: #F2EDED;
-    width: 260px;
+    min-width: 260px;
     margin: 4px;
     height: calc(100% - 68px);
     display: flex;
@@ -85,4 +86,36 @@
 
 .user-item__name {
     padding: 0 6px 0;
+}
+
+.add-user__form__input {
+    margin: 6px 6px;
+}
+
+.btn-success {
+    margin: 6px 6px;
+}
+
+.users-form-container{
+    display: flex;
+}
+
+.task-detail__info {
+
+}
+
+.task-detail__headline-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.task-detail__headline {
+    word-wrap: break-word;
+    width: 480px;
+}
+
+.task-detail__text {
+    width: 500px;
+    word-wrap: break-word;
 }

@@ -4,7 +4,6 @@ Also it is required to separate the logic of work with information from the cons
 The module requires an already authorized user.
 
 """
-import logging
 import typing
 from datetime import datetime, timedelta
 
@@ -15,9 +14,9 @@ import tracker_lib.storage.task as task_storage
 from tracker_lib.enums import Parameters
 from tracker_lib.enums import Status
 from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
-from tracker_lib.models import PeriodicTask
+from tracker_lib.helpers.logging_helper import get_logger
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
 class TaskController:
@@ -67,7 +66,7 @@ class TaskController:
         return_value = task_storage.check_task_exist(task_id=task_id, user_id=user_id)
 
         if return_value == errs.TaskNotExistError().code:
-            raise errs.TaskWithParentIdNotExistError()
+            raise errs.TaskNotExistError()
 
         if return_value == errs.TaskWithParentIdNotExistError().code:
             logger.error(errs.TaskWithParentIdNotExistError().name)
@@ -226,15 +225,38 @@ class TaskController:
         :param edited_task: contains parameters of edited task
         """
         if self.check_permission(task_id=task_id, user_id=self.user_id):
-            return_value = task_storage.edit_task(task_id=task_id, edited_task=edited_task)
+            task = task_storage.get_task_by_id(task_id=task_id)
 
-            if return_value == errs.TaskNotExistError().code:
-                logger.error(errs.InvalidTypeParameterError().name)
-                raise errs.TaskNotExistError()
+            if 'date' in edited_task:
+                try:
+                    date = datetime.strptime(edited_task['date'], '%d/%m/%y %H:%M')
+                    edited_task['date'] = date
+                except ValueError:
+                    raise errs.IncorrectDateValueError()
 
-            # if return_value:
-            #     logger.info('Edit task %s with id = %s. New title = %s!' % (edit_parameter.name, task_id,
-            #                                                                 str(new_parametr_value)))
+            values = [str(item.value) for item in Status]
+            if 'status' in edited_task and edited_task['status'] not in values:
+                raise errs.StatusValueError()
+
+            if task['classtype'] == "PeriodicTask":
+
+                if 'period' in edited_task and not self.cph.is_valid_cron(edited_task['period']):
+                    raise errs.CronValueError()
+
+                if 'start_date' in edited_task:
+                    try:
+                        date = datetime.strptime(edited_task['start_date'], '%d/%m/%y %H:%M')
+                        edited_task['date'] = date
+                    except ValueError:
+                        raise errs.IncorrectDateValueError()
+
+                return_value = task_storage.edit_periodic_task(task_id=task_id, edited_task=edited_task)
+                if return_value == errs.TaskNotExistError().code:
+                    raise errs.TaskNotExistError()
+            else:
+                return_value = task_storage.edit_task(task_id=task_id, edited_task=edited_task)
+                if return_value == errs.TaskNotExistError().code:
+                    raise errs.TaskNotExistError()
         else:
             logger.error(errs.TaskNotExistError().name)
             raise errs.TaskNotExistError()
@@ -254,9 +276,6 @@ class TaskController:
                 logger.info('Get subtasks of task with id = %s!' % task_id)
                 return return_value
 
-            else:
-                logger.error(errs.NoSubtaskError().name)
-                raise errs.NoSubtaskError()
         else:
             logger.error(errs.AccessError().name)
             raise errs.AccessError()
@@ -272,12 +291,20 @@ class TaskController:
         :param task_id: task id : int
         """
         if self.check_permission(user_id=self.user_id, task_id=task_id):
+
             task_storage.share_permission(user_id=self.user_id, task_id=task_id, new_user_id=new_user_id)
 
             logger.info('Share permission to task with id = %s. New user = %s!' % (task_id, new_user_id))
 
         else:
             logger.error(errs.AccessError().name)
+            raise errs.AccessError()
+
+    def delete_permission(self, task_id, deleted_user_id):
+        task = self.get_task_by_id(task_id=task_id)
+        if task['creator'] == self.user_id or self.user_id in task['users']:
+            task_storage.delete_permission(deleted_user_id=deleted_user_id, task_id=task_id)
+        else:
             raise errs.AccessError()
 
     def get_tasks_by_tag(self, tag: str):
@@ -295,7 +322,7 @@ class TaskController:
             logger.error(errs.InvalidTypeParameterError().name)
             raise errs.InvalidTypeParameterError()
 
-    def get_tasks_on_period(self, start: datetime, end: datetime):
+    def get_tasks_on_period(self, start: str, end: str):
         """
 
         Gets all tasks in predetermined period.
@@ -334,49 +361,23 @@ class TaskController:
 
             for task in tasks:
 
-                if isinstance(task, PeriodicTask):
+                if task['classtype'] == 'PeriodicTask':
 
-                    if cph.in_period(task.period, temp_date):
+                    if cph.in_period(task['period'], temp_date):
                         tasks_list.append(task)
 
                 else:
+                    task_date = task['date']
+                    if task_date and temp_date == datetime(task_date.year, task_date.month, task_date.day):
 
-                    if temp_date == task.date:
-
-                        if task.periodic_task_id:
-                            tasks_list = list(filter(lambda task: task.id == task.periodic_task_id, tasks_list))
+                        if task['periodic_task_id']:
+                            tasks_list = list(filter(lambda task: task['id'] == task['periodic_task_id'], tasks_list))
                         tasks_list.append(task)
 
             if len(tasks_list) > 0:
                 response.append({temp_date: tasks_list})
 
             temp_date = temp_date + timedelta(days=1)
-
-        # temp_date = start_date
-        #
-        #
-        # is_printable = False
-        # for i in range(int((end_date - start_date).days) + 1):
-        #     tasks_to_print = dict()
-        #
-        #     for task in task_date_comments_dict:
-        #         if temp_date.date().__str__() in task_date_comments_dict[task]['dates']:
-        #             is_printable = True
-        #             tasks_to_print[task] = task_date_comments_dict[task]
-        #
-        #     if is_printable:
-        #         response[temp_date] = tasks_to_print
-        #         # print(temp_date.date().__str__() + ':')
-        #         # print('tasks:')
-        #         # for task in tasks_to_print:
-        #         #     print(task)
-        #         #     for comment in tasks_to_print[task]['dates'][temp_date.date().__str__()]:
-        #         #         print('comments:')
-        #         #         print('-' + comment.__str__())
-        #
-        #     is_printable = False
-        #
-        #     temp_date = temp_date + timedelta(days=1)
 
         return response
 

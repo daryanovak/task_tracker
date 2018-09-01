@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 from pony.orm import *
@@ -6,9 +5,10 @@ from pony.orm import *
 import tracker_lib.helpers.errors as errs
 import tracker_lib.storage.task as task_storage
 from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
+from tracker_lib.helpers.logging_helper import get_logger
 from tracker_lib.models import Task, PeriodicTask, Comment
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
 cph = CronPeriodHelper()

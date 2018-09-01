@@ -1,16 +1,33 @@
 import _pickle as cPickle
 import datetime
-import logging
 import typing
 
 from pony.orm import *
 
 import tracker_lib.helpers.errors as errs
 from tracker_lib.enums import Parameters
+from tracker_lib.helpers.logging_helper import get_logger
 from tracker_lib.models import PeriodicTask
 from tracker_lib.models import Task
 
-logger = logging.getLogger('logger')
+logger = get_logger()
+
+
+def __filterByUser(user_id, tasks):
+    """
+    Returns all user tasks
+    :param user_id:
+    :param tasks: tasks, which you should check
+    :return: list of task object
+    """
+    tasks_lst = []
+
+    for task in tasks:
+        for u in task.users:
+            if u == user_id:
+                tasks_lst.append(task)
+                break
+    return tasks_lst
 
 
 @db_session
@@ -151,14 +168,30 @@ def edit_task(task_id: int, edited_task: typing.Dict):
 
 
 @db_session
+def edit_periodic_task(task_id: int, edited_task: typing.Dict):
+    task = PeriodicTask[task_id]
+    if task:
+        task.set(**edited_task)
+    else:
+        return errs.TaskNotExistError().code
+
+
+@db_session
 def get_task_subtasks(user_id: int, task_id: int):
     tasks = select(t for t in Task
-                  if user_id in t.users
-                  if t.parent_id == task_id).prefetch(Task.title)
-    pickled_data = cPickle.dumps(tasks)
-    tasks = cPickle.loads(pickled_data)
+                   if t.parent_id == task_id).prefetch(Task.title)
+    tasks = __filterByUser(user_id, tasks)
 
-    lst = [task for task in tasks]
+    lst = [task.to_dict() for task in tasks]
+
+    for task in lst:
+        task['subtasks'] = get_task_subtasks(user_id, task['id'])
+
+    return lst
+
+
+
+
 
     # lst = []
     # for task in tasks:
@@ -172,9 +205,9 @@ def share_permission(user_id: int, task_id: int, new_user_id: int, parent_id: in
 
     if parent_id:
         tasks = select(t for t in Task
-                       if user_id in t.users
                        if t.parent_id == parent_id).prefetch(Task)
 
+        tasks = __filterByUser(user_id, tasks)
         for task in tasks:
             task.users.append(int(new_user_id))
             share_permission(user_id, task_id, new_user_id, task.id)
@@ -182,15 +215,24 @@ def share_permission(user_id: int, task_id: int, new_user_id: int, parent_id: in
         task = Task[task_id]
         task.users.append(int(new_user_id))
 
-
         tasks = select(t for t in Task
-                       if user_id in t.users
                        if t.parent_id == task_id).prefetch(Task)
+        tasks = __filterByUser(user_id, tasks)
 
         if len(tasks):
             for _task in tasks:
                 share_permission(user_id, _task.id, new_user_id, task.id)
 
+
+@db_session
+def delete_permission(task_id: int, deleted_user_id: int):
+    task = Task[task_id]
+    users = []
+    for user_id in task.users:
+        if user_id != deleted_user_id:
+            users.append(user_id)
+
+    task.users = users
     # periodic_tasks = select(t for t in PeriodicTask
     #                         if user_id in t.users
     #                         if t.parent_id == task_id).prefetch(Task)
@@ -224,60 +266,61 @@ def get_tasks_on_period(user_id: int, start: datetime, end: datetime):
 @db_session
 def get_tasks_by_parameter_type(user_id: int, parameter: Parameters, parametr_value):
     if parameter == Parameters.TITLE:
-            tasks = select(t for t in Task
-                           if user_id in t.users
-                           if t.title == parametr_value).prefetch(Task.title)
-            pickled_data = cPickle.dumps(tasks)
-            tasks = cPickle.loads(pickled_data)
+        tasks = select(t for t in Task
+                       if user_id in t.users
+                       if t.title == parametr_value).prefetch(Task.title)
+        pickled_data = cPickle.dumps(tasks)
+        tasks = cPickle.loads(pickled_data)
 
     if parameter == Parameters.TEXT:
-            return Task.get(text=parametr_value)
+        return Task.get(text=parametr_value)
 
     if parameter == Parameters.STATUS:
-            return Task.get(status=parametr_value)
+        return Task.get(status=parametr_value)
 
     if parameter == Parameters.TAGS:
-            tasks = select(t for t in Task).prefetch(Task.title)
-            _tasks = []
-            for task in tasks:
-                if user_id in task.users:
-                        _tasks.append(task)
+        tasks = select(t for t in Task).prefetch(Task.title)
+        _tasks = []
+        for task in tasks:
+            if user_id in task.users:
+                _tasks.append(task)
 
-            pickled_data = cPickle.dumps(_tasks)
-            tasks = cPickle.loads(pickled_data)
+        pickled_data = cPickle.dumps(_tasks)
+        tasks = cPickle.loads(pickled_data)
 
-            lst = []
+        lst = []
 
-            for task in tasks:
-                if task.tags != "":
-                    list_of_tags = map(lambda tag: tag.strip(), task.tags.split(","))
-                    if parametr_value in list_of_tags:
-                        lst.append(task)
-            return lst
+        for task in tasks:
+            if task.tags != "":
+                list_of_tags = map(lambda tag: tag.strip(), task.tags.split(","))
+                if parametr_value in list_of_tags:
+                    lst.append(task.to_dict())
+        return lst
 
 
 @db_session
 def get_tasks(user_id: int):
-    tasks = (select(task for task in Task).prefetch(Task))
+    tasks = (select(task for task in Task if task.parent_id is None).prefetch(Task))
 
     tasks_lst = []
 
     for task in tasks:
-        if isinstance(task, Task):
+        if isinstance(task, Task) and not isinstance(task, PeriodicTask):
             for u in task.users:
                 if u == user_id:
-                    tasks_lst.append({'id': task.id, 'type': "Task", 'title': task.title, 'text': task.text,
-                                 'status': task.status, 'tags': task.tags, 'date': task.date,
-                                 'parent_id': task.parent_id, 'creator': task.creator})
+                    tasks_lst.append({'id': task.id, 'classtype': "Task", 'title': task.title, 'text': task.text,
+                                      'status': task.status, 'tags': task.tags, 'date': task.date,
+                                      'parent_id': task.parent_id, 'creator': task.creator, 'periodic_task_id': task.periodic_task_id})
 
         if isinstance(task, PeriodicTask):
             for u in task.users:
                 if u == user_id:
-                    tasks_lst.append({'id': task.id, 'type': "PeriodicTask", 'title': task.title, 'text': task.text,
-                                'status': task.status, 'tags': task.tags, 'start_date': task.start_date,
-                                'period': task.period, 'date': task.date, 'parent_id': task.parent_id,
-                                'creator': task.creator})
-
+                    tasks_lst.append({'id': task.id, 'classtype': "PeriodicTask", 'title': task.title, 'text': task.text,
+                                      'status': task.status, 'tags': task.tags, 'start_date': task.start_date,
+                                      'period': task.period, 'date': task.date, 'parent_id': task.parent_id,
+                                      'creator': task.creator})
+    for task in tasks_lst:
+        task['subtasks'] = get_task_subtasks(user_id, task['id'])
     return tasks_lst
 
 

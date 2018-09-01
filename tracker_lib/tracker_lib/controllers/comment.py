@@ -2,13 +2,13 @@
 A module that implements the basic logic of working with the task's comments.
 """
 import datetime
-import logging
 
 import tracker_lib.helpers.errors as errs
 import tracker_lib.storage.comment as comment_storage
 import tracker_lib.storage.task as task_storage
+from tracker_lib.helpers.logging_helper import get_logger
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
 class CommentController:
@@ -77,28 +77,30 @@ class CommentController:
         :return: return True, if user have access or exception
         """
         return_value = comment_storage.check_user_in_comment(user_id=user_id, comment_id=comment_id)
-        if return_value:
-            return True
+        if return_value == errs.CommentNotFoundError().code:
+            raise errs.CommentNotFoundError()
         if return_value == errs.CommentAccessError().code:
             raise errs.CommentAccessError()
+        if return_value:
+            return True
 
-    def delete_comment(self, comment_id: int):
-        """
-
-        Deletes comment with id = comment_id.
-        Checks permission to comment and then if user have access deletes, otherwise raise exception.
-
-        :param comment_id: unique comment id
-        """
-        if self.check_user_in_comment(user_id=self.user_id, comment_id=comment_id):
-
-            return_value = comment_storage.delete_comment(user_id=self.user_id, comment_id=comment_id)
-
-            if return_value == errs.CommentAccessError().code:
-                raise errs.CommentAccessError()
-            if return_value:
-                logger.info('Delete comment with commnet_id %s' % str(comment_id))
-
-        else:
-            logger.error(errs.CommentAccessError().name)
-            raise errs.CommentAccessError()
+    # def delete_comment(self, comment_id: int):
+    #     """
+    #
+    #     Deletes comment with id = comment_id.
+    #     Checks permission to comment and then if user have access deletes, otherwise raise exception.
+    #
+    #     :param comment_id: unique comment id
+    #     """
+    #     if self.check_user_in_comment(user_id=self.user_id, comment_id=comment_id):
+    #
+    #         return_value = comment_storage.delete_comment(user_id=self.user_id, comment_id=comment_id)
+    #
+    #         if return_value == errs.CommentAccessError().code:
+    #             raise errs.CommentAccessError()
+    #         if return_value:
+    #             logger.info('Delete comment with commnet_id %s' % str(comment_id))
+    #
+    #     else:
+    #         logger.error(errs.CommentAccessError().name)
+    #         raise errs.CommentAccessError()

@@ -11,16 +11,17 @@ $('.user-item__delete-button').on('click', function(event) {
         type: 'POST',
         data: {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-            user_id: element.attr("data-user-id")
+            user_id: element.attr("data-user-id"),
+            redirect: '/tasks/' + task_id
         },
     }).done(function (data) {
         if (data.success) {
-            window.location.href = data.url;
+            window.location.href = data.url;//go to another web page
         }
     });
 });
 
-$('.users__add-user__form').submit(function(e) {
+$('.users__add-user__form').submit(function(e) {// added user
     e.preventDefault();
     var task_id = $('.task-detail').attr("data-task-id");
     $.ajax({

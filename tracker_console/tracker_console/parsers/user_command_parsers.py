@@ -32,7 +32,7 @@ class UserCommandParsers:
         parser_append.set_defaults(func=self.view.log_out)
 
     def delete_user_parser(self):
-        parser_append = self.subparsers.add_parser('delete_user', help='Delete users (only for super users)')
+        parser_append = self.subparsers.add_parser('delete_user', help='Deletes users')
         parser_append.add_argument('user_login', help='User login', default='')
         parser_append.set_defaults(func=self.view.delete_user)
 

@@ -1,8 +1,4 @@
-.add-task-button {
-    border-radius: 0;
-    margin: 6px;
-    display: block;
-}
+
 
 .tasks-list__content {
     display: flex;
@@ -62,6 +58,7 @@
 .task__status {
     width: 60px;
     height: 100%;
+    margin-right: 14px;
 }
 
 .task__title {
@@ -107,4 +104,42 @@
 
 .task__add-button {
     color: forestgreen;
+}
+
+.task__owner-container {
+    display: flex;
+    align-items: center;
+}
+
+.task__owner {
+    margin-left: 6px;
+}
+
+.task__status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.task__status-checkbox {
+    width: 24px;
+    height: 24px;
+}
+
+.task-list__toolbox {
+    display: flex;
+    margin: 0 6px;
+}
+
+.add-task-button {
+    width: 100%;
+    margin-left: 12px;
+}
+
+.task-list__container {
+    margin-left: 18px;
+}
+
+.task-list > .task-list__container {
+    margin-left: 0;
 }

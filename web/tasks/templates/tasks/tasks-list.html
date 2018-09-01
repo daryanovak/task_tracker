@@ -1,5 +1,6 @@
 
 {% load static %}
+{% load filters %}
 {% load bootstrap4 %}
 
 <link rel="stylesheet" href="{% static 'tasks/css/tasks-list.css' %}">
@@ -18,25 +19,18 @@
         </div>
     </div>
     <div class="task-list">
-        <a class="add-task-button btn btn-primary" href="/tasks/create">
-            <i class="fas fa-plus"></i>
-            Add Task
-        </a>
-        {% for task in tasks %}
-            <div class="task">
-                <div class="task__status" data-status={{ task.status }} ></div>
-                <a class="task__title" href={% url 'detail' task.id %}>{{ task.title }}</a>
-                <a class="task__button task__add-button" href={% url 'parent' task.id %}>
-                    <i class="fas fa-plus"></i>
-                </a>
-                <a class="task__button task__edit-button" href={% url 'edit' task.id %}>
-                    <i class="fas fa-pencil-alt"></i>
-                </a>
-                <a class="task__button task__delete-button" href={% url 'delete' task.id %}>
-                    <i class="fas fa-trash-alt"></i>
-                </a>
+        <div class="task-list__toolbox">
+            <div class="btn-group mr-auto" role="group" aria-label="Basic example">
+                <button type="button" class="period-button btn btn-info" data-period={{ "current_day" }}>Today</button>
+                <button type="button" class="period-button btn btn-info" data-period="tomorrow">Tomorrow</button>
+                <button type="button" class="period-button btn btn-info" data-period="next_week">Next Week</button>
             </div>
-        {% endfor %}
+            <a class="add-task-button btn btn-primary" href="/tasks/create">
+                <i class="fas fa-plus"></i>
+                Add Task
+            </a>
+        </div>
+        {% include "tasks/task-list.component.html" %}
     </div>
 
 </div>

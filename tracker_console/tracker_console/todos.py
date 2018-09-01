@@ -1,4 +1,7 @@
 import logging
+
+from tracker_lib.helpers.logging_helper import get_logger
+
 from tracker_console.args_parser import ArgsParser
 
 
@@ -8,7 +11,7 @@ def setup_logger(name, log_file, level=logging.INFO):
     handler = logging.FileHandler(log_file)
     handler.setFormatter(logging.Formatter('%(levelname)-8s [%(asctime)s] %(message)s'))
 
-    logger = logging.getLogger(name)
+    logger = get_logger()
     logger.setLevel(level)
     logger.addHandler(handler)
 

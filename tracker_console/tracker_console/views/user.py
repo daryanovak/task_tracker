@@ -1,10 +1,11 @@
-from tracker_console.helpers import get_token
-from tracker_console.auth.user_controller import UserController
-import logging
-import tracker_lib.helpers.errors as errs
 import tracker_lib.helpers.error_helper as errs_help
+import tracker_lib.helpers.errors as errs
+from tracker_lib.helpers.logging_helper import get_logger
 
-logger = logging.getLogger('logger')
+from tracker_console.auth.user_controller import UserController
+from tracker_console.helpers import get_token
+
+logger = get_logger()
 
 
 class UserView:

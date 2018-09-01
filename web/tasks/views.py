@@ -1,6 +1,8 @@
+from datetime import datetime, timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from tracker_lib.controllers.task import TaskController
@@ -8,6 +10,13 @@ from tracker_lib.controllers.comment import CommentController
 from tracker_lib.enums import Status
 
 from tasks.forms import TaskForm
+
+
+periods = {
+    'current_day': (datetime.today(), datetime.today(),),
+    'tomorrow': (datetime.today(), (datetime.today() + timedelta(days=1))),
+    'next_week': (datetime.today(), (datetime.today() + timedelta(weeks=1)))
+}
 
 
 @login_required
@@ -22,12 +31,44 @@ def index(request):
         if task['tags']:
             tags.update(map(lambda tag: tag.strip(), task['tags'].split(',')))
 
+    for task in tasks:
+        task['subtasks'] = controller.get_task_subtasks(task['id'])
+
     if request.is_ajax():
         active_tag = request.GET.get('active_tag')
+        req_period = request.GET.get('period')
         if active_tag:
             if active_tag != 'all':
                 tasks = controller.get_tasks_by_tag(active_tag)
             return render(request, 'tasks/tasks-list.html', {'tasks': tasks, 'tags': tags})
+        if req_period:
+            res_tasks = []
+            result_tasks = []
+            date_tasks_list = controller.get_tasks_on_period(periods[req_period][0].strftime('%d/%m/%y'), periods[req_period][1].strftime('%d/%m/%y'))
+
+            #get all tasks
+            for date_tasks in date_tasks_list:
+                date = list(date_tasks.keys())[0]
+                for task in date_tasks[date]:
+                    res_tasks.append(task)
+
+            #remove duplicate
+            for res_task in res_tasks:
+                is_dublicate = False
+                for res in result_tasks:
+                    if res_task['id'] == res['id']:
+                        is_dublicate = True
+
+                if not is_dublicate:
+                    result_tasks.append(res_task)
+                else:
+                    is_dublicate = False
+
+            for task in result_tasks:
+                task['subtasks'] = controller.get_task_subtasks(task['id'])
+
+            return render(request, 'tasks/tasks-list.html', {'tasks': result_tasks, 'tags': tags})
+
     return render(request, 'tasks/index.html', {'tasks': tasks, 'tags': tags})
 
 
@@ -44,7 +85,24 @@ def create(request):
 
         if form.is_valid():
             data = form.cleaned_data
-            controller.create_task(data['title'], data['text'], data['status'], tags=data['tags'])
+            if data['period'] and data['start_date']:
+                controller.create_periodic_task(
+                    data['title'],
+                    data['text'],
+                    data['status'],
+                    tags=data['tags'],
+                    start_date=data['start_date'].strftime('%d/%m/%y %H:%M') if data['start_date'] else None,
+                    deadline=data['date'].strftime('%d/%m/%y %H:%M') if data['date'] else None,
+                    period=data['period']
+                )
+            else:
+                controller.create_task(
+                    data['title'],
+                    data['text'],
+                    data['status'],
+                    tags=data['tags'],
+                    date=data['date'].strftime('%d/%m/%y %H:%M') if data['date'] else None,
+                )
             return HttpResponseRedirect('/tasks')
 
     # if a GET (or any other method) we'll create a blank form
@@ -54,27 +112,42 @@ def create(request):
     return render(request, 'tasks/task-create.html', {'form': form})
 
 
+@login_required
 def create_subtask(request, task_id):
     current_user = request.user
-    print(task_id)
     controller = TaskController(current_user.id)
-    # if this is a POST request we need to process the form data
+
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
         form = TaskForm(request.POST)
-        # check whether it's valid:
 
         if form.is_valid():
             data = form.cleaned_data
-            controller.create_task(title=data['title'], text=data['text'], status=data['status'], parent_id=task_id,
-                                   tags=data['tags'])
+            if data['period'] and data['start_date']:
+                controller.create_periodic_task(
+                    data['title'],
+                    data['text'],
+                    data['status'],
+                    tags=data['tags'],
+                    start_date=data['start_date'].strftime('%d/%m/%y %H:%M') if data['start_date'] else None,
+                    deadline=data['date'].strftime('%d/%m/%y %H:%M') if data['date'] else None,
+                    period=data['period'],
+                    parent_id=task_id
+                )
+            else:
+                controller.create_task(
+                    data['title'],
+                    data['text'],
+                    data['status'],
+                    tags=data['tags'],
+                    date=data['date'].strftime('%d/%m/%y %H:%M') if data['date'] else None,
+                    parent_id=task_id
+                )
             return HttpResponseRedirect('/tasks')
 
-    # if a GET (or any other method) we'll create a blank form
     else:
         form = TaskForm()
 
-    return render(request, 'tasks/task-create.html', {'form': form})
+    return render(request, 'tasks/create-subtask.html', {'form': form, 'task_id': task_id})
 
 
 @csrf_exempt
@@ -95,7 +168,6 @@ def edit(request, task_id):
     current_user = request.user
     controller = TaskController(current_user.id)
     task = controller.get_task_by_id(task_id)
-    print(task)
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -143,7 +215,7 @@ def detail(request, task_id):
         raise Exception()
     print(owner)
     return render(request, 'tasks/detail.html', {'task': task, 'comment_list': comment_list, 'user_list': user_list,
-                                            'owner': owner})
+                                                 'owner': owner})
 
 
 @login_required
@@ -158,3 +230,46 @@ def comment(request, task_id):
     return HttpResponseRedirect('/tasks/{}/'.format(task_id))
 
 
+@login_required
+def share_permission(request, task_id):
+    current_user = request.user
+    try:
+        user = User.objects.get(username=request.POST.get('user'))
+    except User.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'User not found',
+            'url': '/tasks/{}/'.format(task_id),
+        })
+
+    controller = TaskController(current_user.id)
+    controller.share_permission(new_user_id=user.id, task_id=task_id)
+    return JsonResponse({
+        'success': True,
+        'url': '/tasks/{}/'.format(task_id),
+    })
+
+
+@login_required
+def delete_permission(request, task_id):
+    current_user = request.user
+    controller = TaskController(current_user.id)
+    controller.delete_permission(task_id, int(request.POST.get('user_id')))
+    return JsonResponse({
+        'success': True,
+        'url': request.POST.get('redirect')
+    })
+
+
+@login_required
+def toggle_task_completion(request, task_id):
+    current_user = request.user
+    controller = TaskController(current_user.id)
+    task = controller.get_task_by_id(task_id)
+
+    if task['status'] == Status.PLANNED.value:
+        new_status = Status.COMPLETED.value
+    else:
+        new_status = Status.PLANNED.value
+    controller.edit_task(task_id=task_id, edited_task={'status': str(new_status) })
+    return JsonResponse({'success': True})

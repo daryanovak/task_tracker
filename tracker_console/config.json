@@ -3,6 +3,6 @@
     "user": "postgres",
     "password": "postgres",
     "host": "localhost",
-    "database": "mydb"
+    "database": "cnsl_db"
   }
 }

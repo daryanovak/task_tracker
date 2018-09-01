@@ -5,8 +5,8 @@
 {% bootstrap_javascript jquery='full' %}
 
 {% block content %}
-
-    <form class="create-task__form" action="/tasks/create" method="post">
+    <script async src="{% static 'tasks/js/task-create.js' %}"></script>
+    <form class="create-task__form" method="post" action={% url 'create'%} >
         {% csrf_token %}
         {% bootstrap_form form %}
         <input class="btn btn-success" type="submit" value="Create task" />
