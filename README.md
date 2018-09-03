@@ -14,14 +14,16 @@ See tasktracker_lib package.
 ####Console
 You can use console part to try core in action. Console part lets you test features easily.
 
-See tasktracker_console package.
-
 ## Getting Started
 ####How to use - tracker_lib
 For import package:
 ```
-import tracker_lib.lib.controllers.TaskController as task_controller
-task = task_controller.create_task(param,....) 
+
+from tracker_lib.controllers.task import TaskController
+
+controller = TaskController(user_id = 1)
+
+controller.create_task("title", "text", 1)
 ```
 
 ####How to use - Console
@@ -34,18 +36,13 @@ whose login will be used to perform actions
 ```
 Now you can start use to console version of TaskTracker. For example, create task:
 ```
-todo create_task title1 text1 0 --tags "example,tutorial"
+todo create_task title1 text1 0 --tags "example,tutorial" --date
 ```
 
-
-##Running the tests
-How to run the automated tests for this system?
-```
-python3.6 -m unittest discover
-
-```
 ##Contributing
 Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
+
+
 
 
 
