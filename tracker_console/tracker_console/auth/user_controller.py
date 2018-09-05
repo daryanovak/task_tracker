@@ -25,6 +25,11 @@ class UserController:
         user_storage.log_out(user_id)
 
     def is_authorized(self, token):
+        """
+        Checks if user is authorized
+        :param token: token file, which storage unique information about authorized user
+        :return:
+        """
         return not not user_storage.get_user(token)
 
     def user_id(self, token):

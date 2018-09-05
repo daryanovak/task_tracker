@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 from django.forms import Textarea, DateTimeInput
-from tracker_lib.enums import Status
+from tracker_lib.enums import TaskStatus
 
 
 class TaskForm(forms.Form):
@@ -19,7 +19,7 @@ class TaskForm(forms.Form):
         required=False
     )
 
-    status = forms.ChoiceField(label='Status', choices=[(status.value, status.name) for status in Status])
+    status = forms.ChoiceField(label='Status', choices=[(status.value, status.name) for status in TaskStatus])
     tags = forms.CharField(max_length=200, required=False)
     is_periodic = forms.BooleanField(
         label='Is Periodic',

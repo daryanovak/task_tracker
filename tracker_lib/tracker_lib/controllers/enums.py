@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Parameters(Enum):
+class TaskParameters(Enum):
     TITLE = 1
     TEXT = 2
     STATUS = 3
@@ -9,7 +9,7 @@ class Parameters(Enum):
     PARENT_ID = 5
 
 
-class Status(Enum):
+class TaskStatus(Enum):
     PLANNED = 0
     COMPLETED = 1
     FAILED = 2

@@ -1,25 +1,16 @@
 from datetime import datetime
-from enum import Enum
 
-from pony.orm import *
+from pony.orm import (
+    Required,
+    Optional,
+    Set,
+    Json,
+    PrimaryKey,
+    LongStr
+)
+
 from tracker_lib.helpers.storage_helper import StorageHelper
-
 from .database import db
-
-
-class Parameters(Enum):
-    TITLE = 1
-    TEXT = 2
-    STATUS = 3
-    TAGS = 4
-    DATE = 5
-    PARENT_ID = 6
-
-
-class Status(Enum):
-    PLANNED = 0
-    COMPLETED = 1
-    FAILED = 2
 
 
 class Task(db.Entity):

@@ -4,15 +4,16 @@ import croniter
 
 import tracker_lib.helpers.errors as errs
 
-"""* * * * * Команда, которая будет выполнена
-   - - - - -
-   | | | | | 
-   | | | | - День недели (1 - 7) (воскресенье =  7)
-   | | | --- Месяц (1 - 12)
-   | | --- День месяца (1 - 31)
-   | ---- Час (0 - 23)
-   
-   ----- Минута (0 - 59)"""
+"""Try to input period in cron format like
+           ┌───────────── minute (0 - 59)
+#          │ ┌───────────── hour (0 - 23)
+#          │ │ ┌───────────── day of month (1 - 31)
+#          │ │ │ ┌───────────── month (1 - 12)
+#          │ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday;
+#          │ │ │ │ │                                       7 is also Sunday on some systems)
+#          │ │ │ │ │
+#          │ │ │ │ │
+#          * * * * *  command to execute"""
 
 
 class CronPeriodHelper:
@@ -28,7 +29,7 @@ class CronPeriodHelper:
     def get_tasks_periods(self, start_date, end_date, input_string='* * * * *'):
         """
 
-        Returns all dates of periodic tasks  from start date to end by cron parameter.
+        Returns all dates of periodic tasks from start date to end by cron parameter.
 
         :param start_date: datetime
         :param end_date: datetime

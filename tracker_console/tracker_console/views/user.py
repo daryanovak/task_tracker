@@ -1,11 +1,8 @@
 import tracker_lib.helpers.error_helper as errs_help
 import tracker_lib.helpers.errors as errs
-from tracker_lib.helpers.logging_helper import get_logger
 
 from tracker_console.auth.user_controller import UserController
 from tracker_console.helpers import get_token
-
-logger = get_logger()
 
 
 class UserView:
@@ -19,7 +16,6 @@ class UserView:
                 file.writelines(token)
         except errs.UserLoginError as e:
             errs_help.console_print(e)
-            logger.error(e.name)
 
     def create_user(self, args):
         self.controller.sign_up(args.login, args.password)

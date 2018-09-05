@@ -1,9 +1,12 @@
 .task-detail__users {
-    background-color: #F2EDED;
     min-width: 260px;
     margin: 4px;
+    padding: 6px 12px;
     overflow: auto;
-    height: calc(100% - 68px);
+    height: calc(100% - 80px);
+    width: 260px;
+    border-radius: 3%;
+    background-color: #17a2b8;
 }
 
 .users__user-item {
@@ -18,11 +21,14 @@
     background-color: white;
     align-items: center;
     margin: 6px;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .comment-item__owner {
     border-bottom: #F2EDED 1px solid;
     padding: 0 6px 0;
+    background: white;
 }
 
 .comment-item__text {
@@ -50,42 +56,50 @@
 
 .task-detail__comments {
     background-color: #F2EDED;
-    min-width: 260px;
+    width: 260px;
     margin: 4px;
-    height: calc(100% - 68px);
+    height: calc(100% - 80px);
     display: flex;
     flex-direction: column;
+    padding-bottom: 20px;
 }
 
 .comments {
     flex-grow: 1;
     overflow: auto;
+    padding: 0 12px;
 }
 
 .users__header-caption {
-    padding: 16px;
+    padding: 6px;
+    color: white;
 }
+
 
 .comments__header-caption{
     padding: 16px;
+    color: white;
 }
 
 .comment-task__form {
     height: 100px;
+    padding: 0 24px 0 12px;
 }
 
 .comment-task-form_textarea {
     margin: 6px 6px;
-    width: 236px;
 }
 
 .comment-form__button {
     margin: 6px 6px;
-    width: 236px;
 }
 
 .user-item__name {
     padding: 0 6px 0;
+}
+
+.users__user-item {
+    color: #17a2b8;
 }
 
 .add-user__form__input {
@@ -101,7 +115,7 @@
 }
 
 .task-detail__info {
-
+ padding: 0 12px;
 }
 
 .task-detail__headline-container {
@@ -113,9 +127,45 @@
 .task-detail__headline {
     word-wrap: break-word;
     width: 480px;
+    padding: 0 160px;
 }
 
 .task-detail__text {
     width: 500px;
     word-wrap: break-word;
+}
+
+.task-detail__toolbox {
+    display: flex;
+    padding: 12px 6px;
+    border-bottom: #dedede 1px solid;
+}
+
+.task__button {
+    margin-left: 12px;
+}
+
+
+.task-detail__comments {
+    background: #17a2b8;
+    border-radius: 3%;
+}
+/*.user-brand {*/
+    /*color: white;*/
+/*}*/
+
+.comment-form__button {
+    margin: 0 4px
+}
+
+.comment-item__owner {
+    color: #17a2b8;
+}
+
+.task-status {
+    background: yellow;
+    width: 100px;
+    border-radius: 30%;
+    align-content: center;
+
 }

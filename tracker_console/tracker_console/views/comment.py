@@ -1,11 +1,9 @@
-import logging
-import tracker_lib.helpers.errors as errs
 import tracker_lib.helpers.error_helper as errs_help
-from tracker_console.helpers import get_token
+import tracker_lib.helpers.errors as errs
 from tracker_lib.controllers.comment import CommentController
-from tracker_console.auth.user_controller import UserController
 
-logger = logging.getLogger(__name__)
+from tracker_console.auth.user_controller import UserController
+from tracker_console.helpers import get_token
 
 
 class CommentView:

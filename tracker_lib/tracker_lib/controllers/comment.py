@@ -13,6 +13,7 @@ logger = get_logger()
 
 class CommentController:
     """
+
     Class CommentControllers takes one parameter user_id, which allows works with users logic.
 
     """

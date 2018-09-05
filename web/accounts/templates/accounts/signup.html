@@ -1,19 +1,23 @@
-{% extends "tasks/../../../tasks/templates/base.html" %}
+{% extends "base.html" %}
 
 {% load bootstrap4 %}
+{% load static %}
 
 
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
 {% block content %}
+    <link rel="stylesheet" href="{% static 'tasks/css/login.css' %}">
 
-    <form class="login__form" method="post" action="{% url 'signup' %}">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <input class="btn btn-dark-green" type="submit" value="Sign up" />
-        <input type="hidden" name="next" value="{{ next }}" />
-        <p><a href="{% url 'login' %}">Do you have account? Please login.</a></p>
-    </form>
+    <div class="login__container">
+        <form class="login__form" method="post" action="{% url 'signup' %}">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input class="btn btn-success" type="submit" value="Sign up" />
+            <input type="hidden" name="next" value="{{ next }}" />
+            <p><a href="{% url 'login' %}">Do you have account? Please login.</a></p>
+        </form>
+    </div>
 
 {% endblock %}

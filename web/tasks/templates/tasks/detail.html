@@ -14,7 +14,7 @@
             </h2>
             {% if user_list %}
                 {% for task_user in user_list %}
-                    <div class="users__user-item">
+                    <div class="btn btn users__user-item">
                         {% if task_user.id == task.creator %}
                             <div class="user-item__name">{{ task_user }} (owner)</div>
                         {% else %}
@@ -46,13 +46,37 @@
 
         </div>
         <div class="task-detail__info">
+            <div class="task-detail__toolbox">
+                <a class="text-danger" href="/tasks"><i class="fas fa-arrow-left fa-lg"></i></a>
+
+                {% if task.creator == user.id %}
+                    <a class="task__button task__add-button ml-auto text-success" href={% url 'parent' task.id %}>
+                        <i class="fas fa-plus fa-lg" title="Add subtask"></i>
+                    </a>
+                    <a class="task__button task__edit-button" href={% url 'edit' task.id %}>
+                        <i class="fas fa-pencil-alt fa-lg" title="Edit task"></i>
+                    </a>
+                    <a class="task__button task__delete-button text-danger" href={% url 'delete' task.id %}>
+                        <i class="fas fa-trash-alt fa-lg" title="Delete task"></i>
+                    </a>
+                {% else %}
+                    <div class="task__owner-container ml-auto">
+                        <i class="fas fa-users fa-lg "></i>
+                        <div class="task__owner"> {{ task.creator | get_user }} </div>
+                        {% csrf_token %}
+                        <a class="btn text-danger user-item__delete-button" data-user-id={{ user.id }} data-task-id={{ task.id }} >
+                            <i class="fas fa-trash-alt fa-lg"></i>
+                        </a>
+
+                    </div>
+                {% endif %}
+            </div>
             <div class="task-detail__headline-container">
                 <h2 class="task-detail__headline">{{ task.title }} </h2>
-                <a class="btn btn-danger" href="/tasks"><i class="fas fa-arrow-left"></i> Back</a>
 
             </div>
             <div class="task-detail__status">
-                <b>{{ task.status | get_status }}</b>
+                <b class="task-status">{{ task.status | get_status }}</b>
             </div>
             {% if task.tags %}
                 <div class="task-detail__tags">
@@ -61,22 +85,23 @@
             {% endif %}
             {% if task.start_date %}
                 <div class="task-detail__start-date">
-                   <i class="far fa-calendar-alt"></i> <b>Start Date:</b> {{ task.start_date }}
+                    <i class="far fa-calendar-alt"></i> <b>Start Date:</b> {{ task.start_date }}
                 </div>
             {% endif %}
             {% if task.date %}
                 <div class="task-detail__date">
-                 <i class="far fa-calendar-alt"></i> <b>Deadline:</b> {{ task.date }}
+                    <i class="far fa-calendar-alt"></i> <b>Deadline:</b> {{ task.date }}
                 </div>
             {% endif %}
             {% if task.period %}
                 <div class="task-detail__period">
-                  <i class="far fa-clock"></i>  <b>Period:</b> {{ task.period }}
+                    <i class="far fa-clock"></i>  <b>Period:</b> {{ task.period }}
                 </div>
             {% endif %}
             <hr>
             <p class="task-detail__text"> <b>Text:</b> {{ task.text }}</p>
         </div>
+
         <div class="task-detail__comments">
             <h2 class="comments__header-caption">
                 <i class="fas fa-comments"></i>
@@ -100,7 +125,7 @@
             <form class="comment-task__form" action="/tasks/{{ task.id }}/comment" method="post">
                 {% csrf_token %}
                 <textarea class="form-control comment-task-form_textarea" name="text" id="id_text" cols="20" rows="2"></textarea>
-                <input class="btn btn-success comment-form__button" type="submit" value="Comment task" />
+                <input class="btn btn-success w-100 comment-form__button" type="submit" value="Comment task" />
             </form>
 
         </div>

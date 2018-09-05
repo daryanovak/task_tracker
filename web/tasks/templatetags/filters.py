@@ -1,6 +1,6 @@
 from django import template
 from django.contrib.auth.models import User
-from tracker_lib.enums import Status
+from tracker_lib.enums import TaskStatus
 
 register = template.Library()
 
@@ -12,6 +12,6 @@ def get_user(user_id):
 
 @register.filter
 def get_status(status):
-    return Status(status).name
+    return TaskStatus(status).name
 
 

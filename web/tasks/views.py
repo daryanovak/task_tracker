@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from tracker_lib.controllers.task import TaskController
 from tracker_lib.controllers.comment import CommentController
-from tracker_lib.enums import Status
+from tracker_lib.enums import TaskStatus
 
 from tasks.forms import TaskForm
 
@@ -267,9 +267,9 @@ def toggle_task_completion(request, task_id):
     controller = TaskController(current_user.id)
     task = controller.get_task_by_id(task_id)
 
-    if task['status'] == Status.PLANNED.value:
-        new_status = Status.COMPLETED.value
+    if task['status'] == TaskStatus.PLANNED.value:
+        new_status = TaskStatus.COMPLETED.value
     else:
-        new_status = Status.PLANNED.value
+        new_status = TaskStatus.PLANNED.value
     controller.edit_task(task_id=task_id, edited_task={'status': str(new_status) })
     return JsonResponse({'success': True})

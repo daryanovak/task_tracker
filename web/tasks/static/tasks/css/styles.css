@@ -1,3 +1,35 @@
-.spacer {
-    flex-grow: 1;
+.header {
+    box-shadow: 0 1px 10px 1px #dedede;
+}
+
+.create-task__form {
+    margin: 24px auto;
+    width: 80%;
+}
+
+.btn-group .period-button:not(:first-child) {
+    margin-left: 0;
+    border-left: #dedede 1px solid;
+}
+
+.navbar-brand {
+    /*color: #d54d7b;*/
+
+    font-size: 25px;
+    /*!*line-height: 160px;*!*/
+    /*font-weight: normal;*/
+    /*margin-bottom: 0px;*/
+    /*text-align: center;*/
+    /*text-shadow: 0 1px 1px #fff;*/
+    font-weight: bold;
+    font-family: 'Amatic SC', cursive;
+}
+
+
+* {
+    /*font-family: 'Raleway', sans-serif;*/
+    /*font-family: 'Amatic SC', cursive;*/
+    /*font-family: 'Crete Round', serif;*/
+    /*text-shadow: 0 1px 1px #fff;*/
+
 }

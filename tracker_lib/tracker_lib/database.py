@@ -10,8 +10,9 @@ db = orm.Database()
 #     user='postgres',
 #     password='postgres',
 #     host='localhost',
-#     database='mydb'
+#     database='mydb2'
 # )
+
 
 db.bind(
     'postgres',
@@ -21,11 +22,6 @@ db.bind(
     database=database_config['database']
 )
 
-
-# db.bind(provider='sqlite', filename='database.sqlite1', create_db=True)
-
-
-#set_sql_debug(True)
 
 
 

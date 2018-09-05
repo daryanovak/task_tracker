@@ -1,4 +1,4 @@
-{% extends "tasks/../base.html" %}
+{% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
 {% bootstrap_css %}
@@ -6,6 +6,7 @@
 
 {% block content %}
     <script async src="{% static 'tasks/js/task-create.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'tasks/css/styles.css' %}">
     <form class="create-task__form" method="post" action={% url 'create'%} >
         {% csrf_token %}
         {% bootstrap_form form %}

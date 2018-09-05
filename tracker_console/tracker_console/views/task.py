@@ -1,13 +1,10 @@
 import tracker_lib.helpers.error_helper as errs_help
 import tracker_lib.helpers.errors as errs
-from tracker_lib.helpers.logging_helper import get_logger
 from tracker_lib.controllers.task import TaskController
 
 from tracker_console.auth.user_controller import UserController
 from tracker_console.helpers import get_token
 import tracker_console.task_helper as task_helper
-
-logger = get_logger()
 
 
 class TaskView:
@@ -88,7 +85,9 @@ class TaskView:
             errs_help.console_print(e)
 
     def get_tasks_on_period(self, args):
+
         dates_tasks = self.controller.get_tasks_on_period(args.start, args.end)
+
         for date_tasks in dates_tasks:
             date = list(date_tasks.keys())[0]
             print(date)

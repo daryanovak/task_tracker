@@ -7,30 +7,31 @@
 <script async src="{% static 'tasks/js/tasks-list.js' %}"></script>
 <div class="tasks-list__content">
     <div class="tags-sidebar">
-        <div data-tag="all" class="all-tags__button tags__button active">All</div>
+        <div data-tag="all" class=" btn btn-outline-info w-100 all-tags__button tags__button active">All</div>
         <div class="tags-title">
             <i class="fas fa-tags"></i>
             <span> Tags</span>
         </div>
         <div class="tags">
             {% for tag in tags %}
-                <div class="tags__button"  data-tag={{ tag }}>{{ tag }}</div>
+                <div class="btn btn-outline-info w-100 tags__button"  data-tag={{ tag }}>{{ tag }}</div>
             {% endfor %}
         </div>
     </div>
     <div class="task-list">
         <div class="task-list__toolbox">
-            <div class="btn-group mr-auto" role="group" aria-label="Basic example">
+            <div class="btn-group ml-auto" role="group" aria-label="Basic example">
                 <button type="button" class="period-button btn btn-info" data-period={{ "current_day" }}>Today</button>
                 <button type="button" class="period-button btn btn-info" data-period="tomorrow">Tomorrow</button>
                 <button type="button" class="period-button btn btn-info" data-period="next_week">Next Week</button>
             </div>
             <a class="add-task-button btn btn-primary" href="/tasks/create">
                 <i class="fas fa-plus"></i>
-                Add Task
             </a>
         </div>
-        {% include "tasks/task-list.component.html" %}
+        <div class="task-list__items">
+                    {% include "tasks/task-list.component.html" %}
+        </div>
     </div>
 
 </div>

@@ -1,7 +1,6 @@
 import unittest
 import tracker_lib.helpers.errors as errs
 from tracker_lib.controllers.task import TaskController
-#python3.6 -m unittest discover
 
 
 class TaskControllerTestCase(unittest.TestCase):

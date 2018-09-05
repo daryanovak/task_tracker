@@ -1,15 +1,18 @@
 from datetime import datetime
 
-from pony.orm import *
+from pony.orm import (
+    ObjectNotFound,
+    db_session
+)
 
 import tracker_lib.helpers.errors as errs
 import tracker_lib.storage.task as task_storage
 from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
-from tracker_lib.helpers.logging_helper import get_logger
-from tracker_lib.models import Task, PeriodicTask, Comment
-
-logger = get_logger()
-
+from tracker_lib.models import (
+    Task,
+    PeriodicTask,
+    Comment
+)
 
 cph = CronPeriodHelper()
 
@@ -28,7 +31,7 @@ def create_periodic_task_comment(user_id, task_id, text, date):
 
 
 @db_session
-def create_task_comment(user_id, task_id, text):  # проверки можно ли писать данному пользователю комментарий
+def create_task_comment(user_id, task_id, text):
     task = Task[task_id]
     comment = Comment(text=text, user_id=user_id, task=task)
     task.comment.add(comment)
@@ -36,14 +39,13 @@ def create_task_comment(user_id, task_id, text):  # проверки можно 
 
 @db_session
 def get_task_comments(task_id):
-        task = Task[task_id]
-        comments = task.comment
-        comments = list(comments)
+    task = Task[task_id]
+    comments = task.comment
+    comments = list(comments)
 
-        lst = [{'login': comment.user_id, 'text': comment.text} for comment in comments]
-        # for comment in comments:
-        #     lst.append({'login': comment.user_id, 'text': comment.text})
-        return lst
+    lst = [{'login': comment.user_id, 'text': comment.text} for comment in comments]
+
+    return lst
 
 
 @db_session
@@ -65,23 +67,3 @@ def delete_comment(user_id, comment_id):
     except ObjectNotFound:
         return errs.CommentAccessError().code
 
-
-
-# @db_session
-# def create_task_comment(user_id, task_id, text, date):  # проверки можно ли писать данному пользователю комментарий
-#     # task = None
-#     if date:
-#         # if task_storage.check_periodic_task_exist(task_id=task_id, user_id=user_id):
-#         #     task = PeriodicTask[task_id]
-#         #     if date and cph.in_period(task.period, date):
-#         #         task = task_storage.add_task(user_id, task.title, task.text, task.status, task.tags,
-#         #                                      datetime.strptime(date, '%d/%m/%y'), task.parent_id,
-#         #                                      periodic_task_id=task_id)
-#         # else:
-#         #     raise errs.TaskNotExistError()
-#     else:
-#         task = Task[task_id]
-#     user = User[user_id]
-#     comment = Comment(text=text, user=user, task=task)
-#     task.comment.add(comment)
-#     logger.info('Was created comment for task with id =  = %s!' % task_id)

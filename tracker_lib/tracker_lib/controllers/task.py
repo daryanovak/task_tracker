@@ -5,14 +5,17 @@ The module requires an already authorized user.
 
 """
 import typing
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
 
-from pony.orm import *
+from pony.orm import ObjectNotFound
 
 import tracker_lib.helpers.errors as errs
 import tracker_lib.storage.task as task_storage
-from tracker_lib.enums import Parameters
-from tracker_lib.enums import Status
+from tracker_lib.controllers.enums import TaskParameters
+from tracker_lib.controllers.enums import TaskStatus
 from tracker_lib.helpers.cron_period_helper import CronPeriodHelper
 from tracker_lib.helpers.logging_helper import get_logger
 
@@ -32,11 +35,14 @@ class TaskController:
         self.__update_status()
 
     def __update_status(self):
+        """
+        Updates task status, when deadline is over
+        """
         tasks = task_storage.get_tasks(self.user_id)
 
         for task in tasks:
             if task['date'] and task['date'] < datetime.now():
-                task_storage.edit_task(task['id'], {'status': Status.FAILED.value})
+                task_storage.edit_task(task['id'], {'status': TaskStatus.FAILED.value})
 
     def check_permission(self, user_id, task_id):
         """
@@ -219,10 +225,10 @@ class TaskController:
     def edit_task(self, task_id: int, edited_task: typing.Dict):
         """
 
-        Function which allows you edit the task parameters.
+        Function which allows you edit the task parameters such title, text, date, period etc.
 
         :param task_id: task id
-        :param edited_task: contains parameters of edited task
+        :param edited_task: contains parameters of edited task.
         """
         if self.check_permission(task_id=task_id, user_id=self.user_id):
             task = task_storage.get_task_by_id(task_id=task_id)
@@ -234,7 +240,8 @@ class TaskController:
                 except ValueError:
                     raise errs.IncorrectDateValueError()
 
-            values = [str(item.value) for item in Status]
+            values = [str(item.value) for item in TaskStatus]
+
             if 'status' in edited_task and edited_task['status'] not in values:
                 raise errs.StatusValueError()
 
@@ -251,6 +258,7 @@ class TaskController:
                         raise errs.IncorrectDateValueError()
 
                 return_value = task_storage.edit_periodic_task(task_id=task_id, edited_task=edited_task)
+
                 if return_value == errs.TaskNotExistError().code:
                     raise errs.TaskNotExistError()
             else:
@@ -301,6 +309,11 @@ class TaskController:
             raise errs.AccessError()
 
     def delete_permission(self, task_id, deleted_user_id):
+        """
+
+        Deletes access to the task with task id.
+
+        """
         task = self.get_task_by_id(task_id=task_id)
         if task['creator'] == self.user_id or self.user_id in task['users']:
             task_storage.delete_permission(deleted_user_id=deleted_user_id, task_id=task_id)
@@ -316,7 +329,7 @@ class TaskController:
         :return: list of task object
         """
         if isinstance(tag, str):
-            return task_storage.get_tasks_by_parameter_type(user_id=self.user_id, parameter=Parameters.TAGS, parametr_value=tag)
+            return task_storage.get_tasks_by_parameter_type(user_id=self.user_id, parameter=TaskParameters.TAGS, parametr_value=tag)
 
         else:
             logger.error(errs.InvalidTypeParameterError().name)
@@ -331,28 +344,12 @@ class TaskController:
         :param end: end of period, datetime in '%d/%m/%y'
         :return: tasks
         """
-        # start = datetime.strptime(start, '%d/%m/%y %H:%M')
-        # end = datetime.strptime(end, '%d/%m/%y %H:%M')
-        # current_user_id = user_storage.get_current_user()
         cph = CronPeriodHelper()
         start_date = datetime.strptime(start, '%d/%m/%y')
         end_date = datetime.strptime(end, '%d/%m/%y')
+
         tasks = task_storage.get_tasks(self.user_id)
-        task_date_comments_dict = dict()
         response = []
-
-        # if type(start) != datetime or type(end) != datetime:
-        # response = {}
-        #     raise errs.IncorrectDateValueError()
-
-        # for task in tasks:
-        #     if isinstance(task, PeriodicTask):
-        #         dates = cph.get_tasks_periods(start_date, end_date,
-        #                                       task.period)
-        #         dates_dict = dict()
-        #         for date in dates:
-        #             dates_dict[date] = comment_storage.get_task_comments(current_user_id, task.id)
-        #         task_date_comments_dict[task] = {'dates': dates_dict}
 
         temp_date = start_date
 

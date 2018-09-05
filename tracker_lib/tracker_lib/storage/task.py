@@ -2,10 +2,14 @@ import _pickle as cPickle
 import datetime
 import typing
 
-from pony.orm import *
+from pony.orm import (
+    db_session,
+    select,
+    delete
+)
 
 import tracker_lib.helpers.errors as errs
-from tracker_lib.enums import Parameters
+from tracker_lib.enums import TaskParameters
 from tracker_lib.helpers.logging_helper import get_logger
 from tracker_lib.models import PeriodicTask
 from tracker_lib.models import Task
@@ -115,8 +119,6 @@ def add_task(user_id: int, title: str, text: str, status: int, tags: str, date=N
     task = Task(creator=user_id, title=title, text=text, status=status, tags=tags,
                 date=date, parent_id=parent_id, periodic_task_id=periodic_task_id, users=users)
 
-    logger.info('Task, with id = %s was created!' % task.id)
-
     return task
 
 
@@ -131,23 +133,7 @@ def add_periodic_task(user_id: int, title: str, text: str, status: int, tags: st
     periodic_task = PeriodicTask(creator=user_id, title=title, text=text, status=status, tags=tags, start_date=start_date,
                                  period=period, date=deadline, parent_id=parent_id, users=users)
 
-    logger.info('Periodic Task, with id = %s was created!' % periodic_task.id)
-
     return periodic_task
-
-#
-# @db_session
-# def get_tasks(user_id: int):
-#     tasks = select(t for t in Task
-#                    if user_id in t.users).prefetch(Task.title)
-#     pickled_data = cPickle.dumps(tasks)
-#     tasks = cPickle.loads(pickled_data)
-#
-#     lst = []
-#     for task in tasks:
-#         lst.append(task)
-#
-#     return lst
 
 
 @db_session
@@ -190,16 +176,6 @@ def get_task_subtasks(user_id: int, task_id: int):
     return lst
 
 
-
-
-
-    # lst = []
-    # for task in tasks:
-    #     lst.append(task)
-
-    return lst
-
-
 @db_session
 def share_permission(user_id: int, task_id: int, new_user_id: int, parent_id: int=None):
 
@@ -233,13 +209,6 @@ def delete_permission(task_id: int, deleted_user_id: int):
             users.append(user_id)
 
     task.users = users
-    # periodic_tasks = select(t for t in PeriodicTask
-    #                         if user_id in t.users
-    #                         if t.parent_id == task_id).prefetch(Task)
-    #
-    # for periodic_task in periodic_tasks:
-    #     periodic_task.users.append(new_user_id)
-
 
 
 @db_session
@@ -264,21 +233,21 @@ def get_tasks_on_period(user_id: int, start: datetime, end: datetime):
 
 
 @db_session
-def get_tasks_by_parameter_type(user_id: int, parameter: Parameters, parametr_value):
-    if parameter == Parameters.TITLE:
+def get_tasks_by_parameter_type(user_id: int, parameter: TaskParameters, parametr_value):
+    if parameter == TaskParameters.TITLE:
         tasks = select(t for t in Task
                        if user_id in t.users
                        if t.title == parametr_value).prefetch(Task.title)
         pickled_data = cPickle.dumps(tasks)
         tasks = cPickle.loads(pickled_data)
 
-    if parameter == Parameters.TEXT:
+    if parameter == TaskParameters.TEXT:
         return Task.get(text=parametr_value)
 
-    if parameter == Parameters.STATUS:
+    if parameter == TaskParameters.STATUS:
         return Task.get(status=parametr_value)
 
-    if parameter == Parameters.TAGS:
+    if parameter == TaskParameters.TAGS:
         tasks = select(t for t in Task).prefetch(Task.title)
         _tasks = []
         for task in tasks:
@@ -322,30 +291,3 @@ def get_tasks(user_id: int):
     for task in tasks_lst:
         task['subtasks'] = get_task_subtasks(user_id, task['id'])
     return tasks_lst
-
-
-
-#
-# @db_session
-# def get_task_by_id1(task_id, user_id):
-#     tasks = (select(task for task in Task).prefetch(Task))
-#
-#     tasks_lst = []
-#
-#     for task in tasks:
-#         if isinstance(task, Task):
-#             for u in task.users:
-#                 if u == user_id:
-#                     tasks_lst.append(task)
-#                 else:
-#                     return errs.TaskNotExistError().code
-#
-#         if isinstance(task, PeriodicTask):
-#             for u in task.users:
-#                 if u == user_id:
-#                     tasks_lst.append(task)
-#                 else:
-#                     return errs.TaskNotExistError().code
-#
-#     return tasks_lst
-

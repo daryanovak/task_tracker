@@ -1,12 +1,14 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 
 {% load bootstrap4 %}
+{% load static %}
 
 
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
 {% block content %}
+    <link rel="stylesheet" href="{% static 'tasks/css/login.css' %}">
 
     {% if next %}
         {% if user.is_authenticated %}
@@ -17,6 +19,7 @@
         {% endif %}
     {% endif %}
 
+    <div class="login__container">
     <form class="login__form" method="post" action="{% url 'login' %}">
         {% csrf_token %}
         {% bootstrap_form form %}
@@ -24,8 +27,8 @@
         <input type="hidden" name="next" value="{{ next }}" />
     </form>
 
-    {# Assumes you setup the password_reset view in your URLconf #}
     <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
     <p><a href="{% url 'signup' %}">Sign up</a></p>
+    </div>
 
 {% endblock %}

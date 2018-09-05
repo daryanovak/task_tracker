@@ -37,7 +37,7 @@ class TaskCommandParsers:
         parser_append.add_argument('title', help='title', default='Title')
         parser_append.add_argument('text', help='text', default='Empty text')
         parser_append.add_argument('status', help='task status {Planed = 0, Completed = 1, Failed = 2}', default='0',
-                                   choices=[0, 1, 2])
+                                   choices=['0', '1', '2'])
         parser_append.add_argument('start_date', help="start date date in format 'd/m/y H:M", default="")
         parser_append.add_argument('date', help=" deadline date in format 'd/m/y H:M", default=0)
         parser_append.add_argument('period', help='cron period', default="")
@@ -63,12 +63,11 @@ class TaskCommandParsers:
     def edit_task_parser(self):
         parser_append = self.subparsers.add_parser('edit_task', help='Edits task by parameter')
         parser_append.add_argument('task_id', help='task id', default=None)
-        parser_append.add_argument('parameter', help='enum.Parameter TITLE = 1,TEXT = 2, STATUS = 3,TAGS = 4,'
-                                                     ' PARENT_ID = 5', default=None)
+        parser_append.add_argument('parameter', help='title,text, status, parent_id', default=None)
         parser_append.add_argument('new_parameter', help='new value of parameter', default=' ')
         parser_append.set_defaults(func=self.view.edit_task)
 
-    def get_subtasks_parser(self):# возврщает повторяющиеся при раздаче
+    def get_subtasks_parser(self):
         parser_append = self.subparsers.add_parser('get_subtasks', help='Gets subtasks of task')
         parser_append.add_argument('task_id', help='task id', default='task id')
         parser_append.set_defaults(func=self.view.get_task_subtasks)

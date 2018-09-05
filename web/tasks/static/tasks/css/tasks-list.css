@@ -6,19 +6,29 @@
 
 }
 
+.all-tags__button {
+    margin-top: 6px;
+}
+
 .tags-sidebar {
-    background-color: #F2EDED;
     width: 200px;
-    margin: 6px;
+    padding: 0 6px;
     overflow: auto;
-    height: calc(100% - 68px);
+    height: 100%;
+    box-shadow: 1px 0px 4px 1px #dedede;
+    border-radius: 3%;
+}
+
+.task-list {
+    width: 100%;
 }
 
 
-.task-list {
+.task-list__items {
     flex-grow: 1;
     height: 100%;
     overflow: auto;
+    width: 100%;
 }
 
 .tags__button {
@@ -32,14 +42,10 @@
     align-items: center;
 }
 
-.all-tags__button {
-
-}
-
 .tags__button {
     background: white;
     padding: 6px 12px;
-    margin: 2px;
+    margin-bottom: 6px;
 }
 
 .tags__button.active {
@@ -49,10 +55,12 @@
 
 .task {
     display: flex;
-    background-color: #F2EDED;
+    background-color: #f8f9fa;
     height: 48px;
     align-items: center;
-    margin: 6px;
+    margin: 6px 6px 6px 18px;
+    border-radius: .25rem;
+    overflow: hidden;
 }
 
 .task__status {
@@ -128,7 +136,8 @@
 
 .task-list__toolbox {
     display: flex;
-    margin: 0 6px;
+    padding: 6px;
+
 }
 
 .add-task-button {
@@ -138,8 +147,23 @@
 
 .task-list__container {
     margin-left: 18px;
+    border-left: #dedede 1px dashed;
 }
 
 .task-list > .task-list__container {
     margin-left: 0;
+    border-left: 0;
 }
+
+.add-task-button {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
