@@ -9,14 +9,20 @@ from pony.orm import (
     LongStr
 )
 
-from tracker_lib.helpers.storage_helper import StorageHelper
 from .database import db
+
+
+def datetime_to_str(date):
+    if date:
+        return date.strftime("%d/%m/%y %H:%M")
+    else:
+        return " "
 
 
 class Task(db.Entity):
     def __str__(self):
         return self.title and (str(self.id) + ' ' + self.title + ' ' + self.text + ' ' + str(self.status) + ' '
-                               + self.tags + ' ' + StorageHelper.datetime_to_str(self.date))
+                               + self.tags + ' ' + datetime_to_str(self.date))
     id = PrimaryKey(int, auto=True)
     creator = Required(int)
     title = Required(str)

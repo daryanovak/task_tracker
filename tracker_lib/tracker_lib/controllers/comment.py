@@ -31,22 +31,20 @@ class CommentController:
         :param text: text of comment
         :param date: date of the periodic task to which you want to apply
         """
-        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
-
-            if date:
-                comment_storage.create_periodic_task_comment(user_id=self.user_id, task_id=task_id, text=text,
-                                                             date=date)
-
-                logger.info('Was created comment for periodic task with id =  = %s!' % task_id)
-
-            else:
-                comment_storage.create_task_comment(user_id=self.user_id, text=text, task_id=task_id)
-
-                logger.info('Was created comment for task with id =  = %s!' % task_id)
-
-        else:
+        if not task_storage.check_permission(user_id=self.user_id, task_id=task_id):
             logger.error(errs.AccessError().name)
             raise errs.AccessError()
+
+        if date:
+            comment_storage.create_periodic_task_comment(user_id=self.user_id, task_id=task_id, text=text,
+                                                         date=date)
+
+            logger.info('Was created comment for periodic task with id =  = %s!' % task_id)
+
+        else:
+            comment_storage.create_task_comment(user_id=self.user_id, text=text, task_id=task_id)
+
+            logger.info('Was created comment for task with id =  = %s!' % task_id)
 
     def get_task_comments(self, task_id: int):
         """
@@ -57,15 +55,13 @@ class CommentController:
         :param task_id: task id
         :return: all task of comment and their creators
         """
-        if task_storage.check_permission(user_id=self.user_id, task_id=task_id):
-
-            #logger.info('Gets comment of task id =!' % task_id)
-
-            return comment_storage.get_task_comments(task_id=task_id)
-
-        else:
+        if not task_storage.check_permission(user_id=self.user_id, task_id=task_id):
             logger.error(errs.AccessError().name)
             raise errs.AccessError()
+
+        #logger.info('Gets comment of task id =!' % task_id)
+
+        return comment_storage.get_task_comments(task_id=task_id)
 
     def check_user_in_comment(self, user_id, comment_id):
         """
@@ -84,24 +80,3 @@ class CommentController:
             raise errs.CommentAccessError()
         if return_value:
             return True
-
-    # def delete_comment(self, comment_id: int):
-    #     """
-    #
-    #     Deletes comment with id = comment_id.
-    #     Checks permission to comment and then if user have access deletes, otherwise raise exception.
-    #
-    #     :param comment_id: unique comment id
-    #     """
-    #     if self.check_user_in_comment(user_id=self.user_id, comment_id=comment_id):
-    #
-    #         return_value = comment_storage.delete_comment(user_id=self.user_id, comment_id=comment_id)
-    #
-    #         if return_value == errs.CommentAccessError().code:
-    #             raise errs.CommentAccessError()
-    #         if return_value:
-    #             logger.info('Delete comment with commnet_id %s' % str(comment_id))
-    #
-    #     else:
-    #         logger.error(errs.CommentAccessError().name)
-    #         raise errs.CommentAccessError()

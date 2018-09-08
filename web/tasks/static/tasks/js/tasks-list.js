@@ -43,7 +43,7 @@ $('.user-item__delete-button').on('click', function(event) {
     var element = $(this);
     var task_id = $(this).attr("data-task-id");
     $.ajax({
-        url: '/tasks/' + task_id +'/delete_permission',
+        url: '/tasks/delete_permission/' + task_id,
         type: 'POST',
         data: {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
@@ -62,7 +62,7 @@ $('.task__status-checkbox').on('click', function (event) {
     var element = $(this);
     var task_id = $(this).attr("data-task-id");
     $.ajax({
-        url: '/tasks/' + task_id +'/toggle_task_completion',
+        url: '/tasks/toggle_task_completion/' + task_id,
         type: 'POST',
         data: {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,

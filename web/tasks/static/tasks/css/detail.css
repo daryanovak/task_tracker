@@ -32,7 +32,7 @@
 }
 
 .comment-item__text {
-    padding: 0 6px 0;
+    padding: 0 15px;
 }
 
 .user-item__delete-button {
@@ -131,9 +131,9 @@
 }
 
 .task-detail__text {
-    width: 500px;
     word-wrap: break-word;
 }
+
 
 .task-detail__toolbox {
     display: flex;
@@ -149,6 +149,7 @@
 .task-detail__comments {
     background: #17a2b8;
     border-radius: 3%;
+    min-width: 260px ;
 }
 /*.user-brand {*/
     /*color: white;*/
@@ -160,6 +161,7 @@
 
 .comment-item__owner {
     color: #17a2b8;
+    padding: 0  15px;
 }
 
 .task-status {

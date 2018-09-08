@@ -1,5 +1,6 @@
 import json
 
+
 def get_config():
     try:
         return json.loads(open('config.json', 'r').read())

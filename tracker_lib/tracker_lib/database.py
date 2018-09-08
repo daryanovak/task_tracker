@@ -5,14 +5,6 @@ from tracker_lib.helpers.config_helper import get_config
 config = get_config()
 database_config = config['database.config']
 db = orm.Database()
-# db.bind(
-#     'postgres',
-#     user='postgres',
-#     password='postgres',
-#     host='localhost',
-#     database='mydb2'
-# )
-
 
 db.bind(
     'postgres',

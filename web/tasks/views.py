@@ -2,15 +2,14 @@ from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from tracker_lib.controllers.task import TaskController
 from tracker_lib.controllers.comment import CommentController
+from tracker_lib.controllers.task import TaskController
 from tracker_lib.enums import TaskStatus
 
 from tasks.forms import TaskForm
-
 
 periods = {
     'current_day': (datetime.today(), datetime.today(),),
@@ -37,10 +36,12 @@ def index(request):
     if request.is_ajax():
         active_tag = request.GET.get('active_tag')
         req_period = request.GET.get('period')
+
         if active_tag:
             if active_tag != 'all':
                 tasks = controller.get_tasks_by_tag(active_tag)
             return render(request, 'tasks/tasks-list.html', {'tasks': tasks, 'tags': tags})
+
         if req_period:
             res_tasks = []
             result_tasks = []
@@ -77,11 +78,9 @@ def create(request):
     current_user = request.user
 
     controller = TaskController(current_user.id)
-    # if this is a POST request we need to process the form data
+
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
         form = TaskForm(request.POST)
-        # check whether it's valid:
 
         if form.is_valid():
             data = form.cleaned_data
@@ -153,7 +152,6 @@ def create_subtask(request, task_id):
 @csrf_exempt
 @login_required
 def delete(request, task_id):
-    # if this is a POST request we need to process the form data
     current_user = request.user
 
     controller = TaskController(current_user.id)
@@ -202,13 +200,13 @@ def detail(request, task_id):
 
     task = controller.get_task_by_id(task_id=task_id)
     comment_list = comment_controller.get_task_comments(task_id=task_id)
+
     user_list = []
     for user in task['users']:
         user_list.append(User.objects.get(id=user))
 
-    # user_pk_list = SharedTask.objects.filter(task=task).values_list('user', flat=True)
-    # user_list = User.objects.filter(id__in=user_pk_list)
     owner = task['creator']
+
     try:
         owner = User.objects.get(id=owner)
     except:

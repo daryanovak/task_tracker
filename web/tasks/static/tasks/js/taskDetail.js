@@ -7,7 +7,7 @@ $('.user-item__delete-button').on('click', function(event) {
     var element = $(this);
     var task_id = $('.task-detail').attr("data-task-id");
     $.ajax({
-        url: '/tasks/' + task_id +'/delete_permission',
+        url: '/tasks/delete_permission/' + task_id,
         type: 'POST',
         data: {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
@@ -25,7 +25,7 @@ $('.users__add-user__form').submit(function(e) {// added user
     e.preventDefault();
     var task_id = $('.task-detail').attr("data-task-id");
     $.ajax({
-        url: '/tasks/' + task_id +'/share_permission',
+        url: '/tasks/share_permission/' + task_id,
         type: 'POST',
         data: {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,

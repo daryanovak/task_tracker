@@ -5,13 +5,13 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('create', views.create, name='create'),
-    path('<int:task_id>/delete', views.delete, name='delete'),
-    path('<int:task_id>/parent', views.create_subtask, name='parent'),
-    path('<int:task_id>/edit', views.edit, name='edit'),
+    path('delete/<int:task_id>', views.delete, name='delete'),
+    path('parent/<int:task_id>', views.create_subtask, name='parent'),
+    path('edit/<int:task_id>', views.edit, name='edit'),
     path('<int:task_id>/', views.detail, name='detail'),
-    path('<int:task_id>/comment', views.comment, name='comment'),
-    path('<int:task_id>/share_permission', views.share_permission, name='share_permission'),
-    path('<int:task_id>/delete_permission', views.delete_permission, name='delete_permission'),
-    path('<int:task_id>/toggle_task_completion', views.toggle_task_completion, name='toggle_task_completion')
+    path('comment/<int:task_id>', views.comment, name='comment'),
+    path('share_permission/<int:task_id>', views.share_permission, name='share_permission'),
+    path('delete_permission/<int:task_id>', views.delete_permission, name='delete_permission'),
+    path('toggle_task_completion/<int:task_id>', views.toggle_task_completion, name='toggle_task_completion')
 
 ]

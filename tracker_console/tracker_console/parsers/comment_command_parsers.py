@@ -25,10 +25,3 @@ class CommentCommandParsers:
         parser_append = self.subparsers.add_parser('get_comments', help='Returns all comments for task')
         parser_append.add_argument('task_id', help='', default='task id')
         parser_append.set_defaults(func=self.view.get_task_comments)
-
-    # def delete_comment(self):
-    #     parser_append = self.subparsers.add_parser('delete_comment', help='Deletes task comment')
-    #     parser_append.add_argument('task_id', help='', default='task id')
-    #     parser_append.set_defaults(func=self.view.delete_comment)
-
-

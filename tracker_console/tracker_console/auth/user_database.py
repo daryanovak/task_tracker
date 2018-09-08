@@ -8,7 +8,6 @@ db.bind(
     host='localhost',
     database='users'
 )
-# db.bind(provider='sqlite', filename='database', create_db=True)
 
 db.drop_table("Numbers", if_exists=True, with_all_data=True)
 

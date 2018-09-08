@@ -149,7 +149,7 @@ class CommentNotFoundError(Exception):
 
 class ConfigError(Exception):
     def __init__(self):
-        self.code = 19
+        self.code = 20
         self.name = "ConfigError"
         self.desc = "Create config in root directory"
 

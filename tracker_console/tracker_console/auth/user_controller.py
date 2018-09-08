@@ -34,9 +34,5 @@ class UserController:
 
     def user_id(self, token):
         user = user_storage.get_user(token)
-        if user:
-            return user.id
-        else:
-            return -1
 
-
+        return user.id if user else -1
